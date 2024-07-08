@@ -1,3 +1,54 @@
 {
-  "extends": "next/core-web-vitals"
+  "root": true,
+  "plugins": ["import"],
+  "extends": ["eslint:recommended", "airbnb-base", "next/core-web-vitals"],
+  "rules": {
+    "camelcase": "off",
+    "no-console": "error",
+    "no-unused-vars": "warn",
+    "no-alert": "off",
+    "linebreak-style": "off",
+    "no-underscore-dangle": "off",
+    "dot-notation": "off",
+    "max-len": ["warn", { "code": 180, "ignoreComments": true }],
+    "indent": ["error", 2],
+    "eol-last": "error",
+    "no-plusplus": "off",
+    "object-curly-newline": 0,
+    "no-undef": "error",
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": true,
+        "classes": true,
+        "variables": false,
+        "allowNamedExports": true
+      }
+    ],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "import/no-unresolved": "off",
+    "import/order": [
+      "warn",
+      {
+        "groups": ["builtin", "external", ["parent", "sibling"], "index", "object", "type"],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        },
+        "newlines-between": "always"
+      }
+    ]
+  },
+  "globals": {
+    "JSX": true
+  }
 }

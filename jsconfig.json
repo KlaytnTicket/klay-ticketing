@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@components/*": ["/components/*"],
+      "@lib/*": ["./lib/*"],
+      "@pages/*": ["pages/*"],
+      "@public/*": ["public/*"],
+      "@styles/*": ["./styles/*"]
     }
-  }
+  },
+  "include": ["**/*.js", "**/*.jsx", "pages/_documents.jsx"],
+  "exclude": ["node_modules"]
 }
