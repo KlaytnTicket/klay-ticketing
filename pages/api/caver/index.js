@@ -6,8 +6,7 @@ async function GET(req, res) {
 }
 
 export async function POST(req, res) {
-  const formData = req.body;
-  const { walletAddress, privateKey, contractAddress } = formData;
+  const { walletAddress, privateKey, contractAddress } = req.body;
   const uri = 'https://www.naver.com';
 
   if (walletAddress === '' || privateKey === '' || contractAddress === '') {
@@ -25,7 +24,7 @@ export async function POST(req, res) {
 
     const contract = caver.contract.create(contractABI, contractAddress);
 
-    const receipt = await contract.send({ from: walletAddress, gas: 1500000 }, 'safeMint', walletAddress, uri);
+    const receipt = await contract.send({ from: walletAddress, gas: 1500000 }, 'mint', walletAddress, uri);
 
     res.status(200).json({ ok: true, message: 'Klaytn 배포 완료', keyring, receipt });
   } catch (error) {
@@ -44,7 +43,7 @@ export default async function handler(req, res) {
     await POST(req, res);
     break;
   default:
-    res.status(501).json({
+    res.status(405).json({
       ok: false,
       message: 'Not Support Method',
     });
