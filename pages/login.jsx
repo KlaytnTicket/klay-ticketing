@@ -14,7 +14,7 @@ export default function Login() {
     event.preventDefault();
 
     if(!userID || !userPSW){
-      alert("아이디 또는 비번을 입력하지 않았다.");
+      alert("아이디 또는 비번을 입력하지 않았다..");
     }
 
     try {
