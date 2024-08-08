@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'node_modules/axios/index';
+import axios from "axios";
+
 //import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // 화살표 아이콘 사용
 
 export default function Home() {
@@ -16,14 +17,20 @@ export default function Home() {
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
-        const res = await axios.get(`/api/tickets/ticketInfo`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch ticket data');
-        }
-        const data = await res.json();
-        setTicketInfo(data.ticketInfo);
-        setTickets(data.tickets);
+        const res = await axios.get(
+          `/api/tickets/ticketInfo`, {
+            params: { floor },
+            headers: {
+              'Cache-Control': 'no-cache', //캐시 무시
+            },
+          });
+
+        
+
+        setTicketInfo(res.data.ticketInfo);
+        setTickets(res.data.tickets);
       } catch (error) {
+        console.log(error);
         setError('데이터를 불러오지 못했습니다'); // 에러 메시지 설정
         setTickets([]);
         setTicketInfo({});
@@ -32,13 +39,16 @@ export default function Home() {
 
     const fetchUserPoint = async () => {
       try {
-        const res = await fetch('/api/tickets/user');
-        if (!res.ok) {
-          throw new Error('Failed to fetch user point');
-        }
-        const data = await res.json();
-        setUserPoint(data.user_point);
+        const res = await axios.get('/api/tickets/user',{
+          headers: {
+            'Cache-Control': 'no-cache', //캐시 무시
+          },
+        });
+       
+        
+        setUserPoint(res.data.USER_POINT);
       } catch (error) {
+        console.log(error);
         setError('데이터를 불러오지 못했습니다'); // 에러 메시지 설정
       }
     };
@@ -48,12 +58,12 @@ export default function Home() {
   }, [floor]);
 
   useEffect(() => {
-    const total = selectedSeats.reduce((sum, ticket) => sum + ticket.ticket_price, 0);
+    const total = selectedSeats.reduce((sum, ticket) => sum + ticket.TICKET_PRICE, 0);
     setTotalPrice(total);
   }, [selectedSeats]);
 
   const handleSeatSelect = (ticket) => {
-    if (ticket.ticket_status) {
+    if (ticket.TICKET_STATUS) {
       alert('이미 예매된 좌석입니다.');
       return;
     }
@@ -93,12 +103,12 @@ export default function Home() {
     }
   };
 
-  const remainingSeats = tickets.filter((ticket) => ticket.ticket_status === 0).length;
+  const remainingSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0).length;
 
-  const remainingSSeats = tickets.filter((ticket) => ticket.ticket_status === 0 && ticket.ticket_grade === 'S').length;
-  const remainingASeats = tickets.filter((ticket) => ticket.ticket_status === 0 && ticket.ticket_grade === 'A').length;
-  const remainingBSeats = tickets.filter((ticket) => ticket.ticket_status === 0 && ticket.ticket_grade === 'B').length;
-  const remainingCSeats = tickets.filter((ticket) => ticket.ticket_status === 0 && ticket.ticket_grade === 'C').length;
+  const remainingSSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'S').length;
+  const remainingASeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'A').length;
+  const remainingBSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'B').length;
+  const remainingCSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'C').length;
 
   const handleCompleteSelection = () => {
     // 결제 페이지로 이동
@@ -127,11 +137,11 @@ export default function Home() {
 
       {/* 티켓 정보 섹션 */}
       <div className="mb-4 flex justify-between bg-gray-200 p-4">
-        <div className="text-3xl font-extrabold">{ticketInfo.ticket_name}</div>
+        <div className="text-3xl font-extrabold">{ticketInfo.TICKET_NAME}</div>
         <div className="text-right text-sm">
-          <div>{ticketInfo.ticket_date}</div>
-          <div>{ticketInfo.ticket_time}</div>
-          <div>{ticketInfo.ticket_place}</div>
+          <div>{ticketInfo.TICKET_DATE}</div>
+          <div>{ticketInfo.TICKET_TIME}</div>
+          <div>{ticketInfo.TICKET_PLACE}</div>
         </div>
       </div>
 
@@ -154,13 +164,13 @@ export default function Home() {
       <div className="mb-4 grid grid-cols-10 gap-2">
         {tickets.map((ticket) => (
           <div
-            key={ticket.ticket_seat}
+            key={ticket.TICKET_SEAT}
             className={`col-span-1 cursor-pointer border p-2 ${selectedSeats.includes(ticket) ? 'border-4 border-black' : ''} ${
-              ticket.ticket_status ? 'bg-gray-400' : getSeatColor(ticket.ticket_grade)
+              ticket.TICKET_STATUS ? 'bg-gray-400' : getSeatColor(ticket.TICKET_GRADE)
             }`}
             onClick={() => handleSeatSelect(ticket)}
           >
-            {ticket.ticket_row}-{ticket.ticket_column}
+            {ticket.TICKET_ROW}-{ticket.TICKET_COLUMN}
           </div>
         ))}
       </div>
@@ -177,7 +187,7 @@ export default function Home() {
           <h2 className="mb-2 text-xl font-bold">고른 좌석</h2>
           <div className="border-b-2 border-t-2 border-black">
             {selectedSeats.map((ticket, index) => (
-              <div key={ticket.ticket_seat} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
+              <div key={ticket.TICKET_SEAT} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
                 {' '}
                 {/* 마지막 티켓 외에는 mb-4 추가 */}
                 <div className="flex">
@@ -185,7 +195,7 @@ export default function Home() {
                     <div className="font-bold">좌석층수</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
-                    <div>{ticket.ticket_floor}층</div>
+                    <div>{ticket.TICKET_FLOOR}층</div>
                   </div>
                 </div>
                 <div className="mt-2 border-t border-gray-300" /> {/* 구분선 추가 및 마진 적용 */}
@@ -194,7 +204,7 @@ export default function Home() {
                     <div className="font-bold">좌석등급</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
-                    <div>{ticket.ticket_grade}</div>
+                    <div>{ticket.TICKET_GRADE}</div>
                   </div>
                 </div>
                 <div className="mt-2 border-t border-gray-300" /> {/* 구분선 추가 및 마진 적용 */}
@@ -204,7 +214,7 @@ export default function Home() {
                   </div>
                   <div className="flex w-2/3 items-center p-2">
                     <div>
-                      {ticket.ticket_row}-{ticket.ticket_column}
+                      {ticket.TICKET_ROW}-{ticket.TICKET_COLUMN}
                     </div>
                   </div>
                 </div>

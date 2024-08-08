@@ -11,10 +11,12 @@ export default async function handler(req, res) {
 
   try {
     await client.connect();
-    const [rows] = await client.query('SELECT "USER_POINT" FROM "USER" LIMIT 1');
+    const result = await client.query(
+      'SELECT "USER_POINT" FROM "USER" LIMIT 1'
+    );
     await client.end();
 
-    res.status(200).json(rows[0]);
+    res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error('Database query error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
