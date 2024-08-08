@@ -15,9 +15,17 @@ export default function ImageButtonA(props) {
   };
 
   return (
-    <Link href={`/${URL}`}>
-      <Image src={img} style={styleClass ? {} : dynamicStyle} className={styleClass ? styleClass : cssStyle} onClick={onClick} disabled={disabled} />
-    </Link>
+    <>
+      {disabled ? (
+        <div style={styleClass ? {} : dynamicStyle} className={styleClass ? styleClass : cssStyle}>
+          <Image src={img} alt="image" />
+        </div>
+      ) : (
+        <Link href={`/${URL}`}>
+          <Image src={img} style={styleClass ? {} : dynamicStyle} className={styleClass ? styleClass : cssStyle} onClick={onClick} />
+        </Link>
+      )}
+    </>
   );
 }
 
