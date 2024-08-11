@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useRouter } from 'next/router';
-import axios from "axios";
-
-//import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // 화살표 아이콘 사용
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [tickets, setTickets] = useState([]);
@@ -12,26 +10,28 @@ export default function Home() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [floor, setFloor] = useState(1);
   const [error, setError] = useState(null); // 에러 상태 추가
-  const router = useRouter(); // Next.js 라우터 쓰기
+  const router = useRouter(); // next.js 라우터
 
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
-        const res = await axios.get(
-          `/api/tickets/ticketInfo`, {
-            params: { floor },
-            headers: {
-              'Cache-Control': 'no-cache', //캐시 무시
-            },
-          });
+        const res = await axios.get('/api/tickets/ticketInfo', {
+          params: { floor },
+          headers: {
+            'Cache-Control': 'no-cache', // 캐시 무시
+          },
+        });
 
-        
+        // Array destructuring 사용
+        const { TICKET_DATE, ...restTicketInfo } = res.data.ticketInfo;
+        const date = new Date(TICKET_DATE);
+        const formattedDate = date.toISOString().split('T')[0];
+        const ticketInfo = { TICKET_DATE: formattedDate, ...restTicketInfo };
 
-        setTicketInfo(res.data.ticketInfo);
+        setTicketInfo(ticketInfo);
         setTickets(res.data.tickets);
-      } catch (error) {
-        console.log(error);
-        setError('데이터를 불러오지 못했습니다'); // 에러 메시지 설정
+      } catch (errors) {
+        setError('데이터를 불러오지 못했습니다');
         setTickets([]);
         setTicketInfo({});
       }
@@ -39,16 +39,14 @@ export default function Home() {
 
     const fetchUserPoint = async () => {
       try {
-        const res = await axios.get('/api/tickets/user',{
+        const res = await axios.get('/api/tickets/user', {
           headers: {
-            'Cache-Control': 'no-cache', //캐시 무시
+            'Cache-Control': 'no-cache', // 캐시 무시
           },
         });
-       
-        
+
         setUserPoint(res.data.USER_POINT);
-      } catch (error) {
-        console.log(error);
+      } catch (errors) {
         setError('데이터를 불러오지 못했습니다'); // 에러 메시지 설정
       }
     };
@@ -67,16 +65,60 @@ export default function Home() {
       alert('이미 예매된 좌석입니다.');
       return;
     }
+
+    let newSelectedSeats = [...selectedSeats];
+
     if (selectedSeats.includes(ticket)) {
-      setSelectedSeats(selectedSeats.filter((seat) => seat !== ticket));
+      // 이미 고른 자리를 클릭하면 선택 풀림
+      newSelectedSeats = selectedSeats.filter((seat) => seat !== ticket);
     } else {
-      if (selectedSeats.length >= 3) {
-        // 선택된 티켓이 3장 이상인 경우 초기화 후 새로운 티켓 추가
-        setSelectedSeats([ticket]);
+      const row = ticket.TICKET_ROW;
+
+      if (selectedSeats.length === 0) {
+        newSelectedSeats = [ticket];
       } else {
-        // 선택된 티켓이 3장 미만인 경우 티켓 추가
-        setSelectedSeats([...selectedSeats, ticket]);
+        const columns = selectedSeats.map((seat) => seat.TICKET_COLUMN);
+        const minColumn = Math.min(...columns);
+        const maxColumn = Math.max(...columns);
+
+        if (selectedSeats.length === 2) {
+          const [firstSeat, secondSeat] = selectedSeats;
+          if (Math.abs(firstSeat.TICKET_COLUMN - ticket.TICKET_COLUMN) === 1 || Math.abs(secondSeat.TICKET_COLUMN - ticket.TICKET_COLUMN) === 1) {
+            // 고른 자리가 기존 자리랑 붙어 있으면
+            newSelectedSeats = [...selectedSeats, ticket];
+          } else {
+            newSelectedSeats = [ticket];
+          }
+        } else if (selectedSeats.length === 1) {
+          const [firstSeat] = selectedSeats;
+          if (Math.abs(firstSeat.TICKET_COLUMN - ticket.TICKET_COLUMN) === 2) {
+            // 선택한 좌석이 첫 번째 좌석과 두 칸 떨어져 있는 경우, 중간 좌석을 자동 선택
+            const middleColumn = (firstSeat.TICKET_COLUMN + ticket.TICKET_COLUMN) / 2;
+            const middleSeat = tickets.find((seat) => seat.TICKET_ROW === row && seat.TICKET_COLUMN === middleColumn);
+
+            if (middleSeat && !selectedSeats.includes(middleSeat)) {
+              newSelectedSeats = [firstSeat, middleSeat, ticket];
+            }
+          } else if (Math.abs(firstSeat.TICKET_COLUMN - ticket.TICKET_COLUMN) === 1) {
+            // 고른 자리가 첫 번째 자리랑 붙어 있으면
+            newSelectedSeats = [...selectedSeats, ticket];
+          } else {
+            newSelectedSeats = [ticket];
+          }
+        } else {
+          // 3개 좌석을 넘어가면 초기화 시키기
+          newSelectedSeats = [ticket];
+        }
       }
+    }
+
+    // 새로 고른 좌석들 총 포인트 계산
+    const newTotalPrice = newSelectedSeats.reduce((sum, seat) => sum + seat.TICKET_PRICE, 0);
+
+    if (newTotalPrice > userPoint) {
+      alert('포인트가 부족합니다.');
+    } else {
+      setSelectedSeats(newSelectedSeats);
     }
   };
 
@@ -188,8 +230,6 @@ export default function Home() {
           <div className="border-b-2 border-t-2 border-black">
             {selectedSeats.map((ticket, index) => (
               <div key={ticket.TICKET_SEAT} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
-                {' '}
-                {/* 마지막 티켓 외에는 mb-4 추가 */}
                 <div className="flex">
                   <div className="flex w-1/3 items-center justify-center bg-gray-200 p-2">
                     <div className="font-bold">좌석층수</div>
