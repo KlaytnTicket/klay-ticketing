@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
 import axios from 'node_modules/axios/index';
 import { useEffect, useState } from 'react';
-import FixedTicketingSection from './ticketing_fixed_section';
-import DeatilTicketingSection from './ticketing_detail_section';
+import FixedTicketingSection from '../../components/ticketing_view/ticketing_fixed_section';
+import DeatilTicketingSection from '../../components/ticketing_view/ticketing_detail_section';
 
 export default function CaverTestPage() {
   const router = useRouter();
