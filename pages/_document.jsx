@@ -5,7 +5,6 @@ export default function Document() {
   return (
     <Html lang="ko">
       <Head />
-      <Topbar />
       <body>
         <Main />
         <NextScript />
