@@ -1,6 +1,5 @@
 import Head from "next/head";
 import ConcertSlider from "components/ConcertSlider";
-import NavLogin from "components/NavLogin";
 
 
 export default function Home(){
@@ -9,9 +8,6 @@ export default function Home(){
       <Head>
         <title>Klayten_Ticketing</title>
       </Head>
-
-      {/* 로그인&회원가입 */}
-      <NavLogin />
 
       {/* 콘서트목록 들어올 장소  */}
       <div className="bg-slate-200">
