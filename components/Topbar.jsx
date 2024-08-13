@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import ButtonA from './ButtonA';
 import Image from 'node_modules/next/image';
 import Link from 'node_modules/next/link';
-import LOGO from '../../image/logo.png';
+import LOGO from '../image/logo.png';
 
 export default function Topbar() {
   const [user, setUser] = useState(null);

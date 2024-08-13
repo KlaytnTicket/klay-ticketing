@@ -2,7 +2,7 @@
 import React from 'react';
 
 import Image from 'node_modules/next/image';
-import footer from '../../image/footer.png';
+import footer from '../image/footer.png';
 
 export default function Footer() {
   return (
