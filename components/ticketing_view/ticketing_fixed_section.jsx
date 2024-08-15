@@ -1,7 +1,9 @@
+import { useRouter } from 'node_modules/next/router';
 import { useState } from 'react';
 
 export default function FixedTicketingSection(props) {
   const { event, id } = props;
+  const router = useRouter();
 
   const [choose, setChoose] = useState(0);
   const today = new Date();
@@ -105,7 +107,12 @@ export default function FixedTicketingSection(props) {
       </div>
       <div
         onClick={() => {
-          choose !== 0 ? window.alert(`예약화면으로 이동 | 시간 대 : ${choose} , pk : ${id}`) : null;
+         if(choose !== 0){
+          router.push({
+            pathname: '/reservation',
+            query: {ticket_time: choose, event_pk: id},
+          });
+         } 
         }}
         className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] items-center justify-center rounded-xl ${choose === 0 ? 'bg-[#383838]' : 'bg-[#4579FF]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
       >

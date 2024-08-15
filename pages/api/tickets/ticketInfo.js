@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 
 export default async function handler(req, res) {
-  const { floor } = req.query;
+  const { floor, event_pk, ticket_time } = req.query;
 
   const client = new Client({
     host: process.env.DB_HOST,
@@ -14,7 +14,14 @@ export default async function handler(req, res) {
   try {
     await client.connect();
 
-    const ticketInfoRows = await client.query('SELECT "TICKET_NAME", "TICKET_DATE", "TICKET_TIME", "TICKET_PLACE" FROM "TICKET" LIMIT 1');
+    const ticketInfoQuery = `
+      SELECT "TICKET_NAME", "TICKET_DATE", "TICKET_TIME", "TICKET_PLACE" 
+      FROM "TICKET" 
+      WHERE "EVENT_PK" = $1 AND "TICKET_TIME" = $2
+    `;
+    const ticketParams = [event_pk, ticket_time];
+
+    const ticketInfoRows = await client.query(ticketInfoQuery, ticketParams);
 
     const ticketsRows = await client.query('SELECT * FROM "TICKET" WHERE "TICKET_FLOOR" = $1', [floor]);
 

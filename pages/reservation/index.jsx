@@ -12,11 +12,22 @@ export default function Home() {
   const [error, setError] = useState(null); // 에러 상태 추가
   const router = useRouter(); // next.js 라우터
 
+  const {ticket_time, event_pk} = router.query; //이벤트 pk랑 시간대 받아오는 거 ==> 티켓정보 불러오기
+  const [user, setUser] = useState(null);
+  
+
+  //User 아이디 불러오기
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
+  }, []);
+  
+  
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
         const res = await axios.get('/api/tickets/ticketInfo', {
-          params: { floor },
+          params: { floor, event_pk, ticket_time },
           headers: {
             'Cache-Control': 'no-cache', // 캐시 무시
           },
@@ -38,8 +49,10 @@ export default function Home() {
     };
 
     const fetchUserPoint = async () => {
-      try {
+      try {        
+        const userID = user.userID;
         const res = await axios.get('/api/tickets/user', {
+          params: {userID},
           headers: {
             'Cache-Control': 'no-cache', // 캐시 무시
           },
@@ -53,7 +66,7 @@ export default function Home() {
 
     fetchTicketData();
     fetchUserPoint();
-  }, [floor]);
+  }, [floor, ticket_time, event_pk]);
 
   useEffect(() => {
     const total = selectedSeats.reduce((sum, ticket) => sum + ticket.TICKET_PRICE, 0);
@@ -145,12 +158,12 @@ export default function Home() {
     }
   };
 
-  const remainingSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0).length;
+  const remainingSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === false).length;
 
-  const remainingSSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'S').length;
-  const remainingASeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'A').length;
-  const remainingBSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'B').length;
-  const remainingCSeats = tickets.filter((ticket) => ticket.TICKET_STATUS === 0 && ticket.TICKET_GRADE === 'C').length;
+  const remainingSSeats = tickets.filter((ticket) => ticket.TICKET_STATUS !== 0 && ticket.TICKET_GRADE === 'S').length;
+  const remainingASeats = tickets.filter((ticket) => ticket.TICKET_STATUS !== 0 && ticket.TICKET_GRADE === 'A').length;
+  const remainingBSeats = tickets.filter((ticket) => ticket.TICKET_STATUS !== 0 && ticket.TICKET_GRADE === 'B').length;
+  const remainingCSeats = tickets.filter((ticket) => ticket.TICKET_STATUS !== 0 && ticket.TICKET_GRADE === 'C').length;
 
   const handleCompleteSelection = () => {
     // 결제 페이지로 이동
@@ -162,14 +175,7 @@ export default function Home() {
     router.push('/previous');
   };
 
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <h4 className="text-center text-2xl font-bold">{error}</h4>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="container mx-auto p-4">
       {/* 헤더 */}
@@ -206,7 +212,7 @@ export default function Home() {
       <div className="mb-4 grid grid-cols-10 gap-2">
         {tickets.map((ticket) => (
           <div
-            key={ticket.TICKET_SEAT}
+            key={ticket.TICKET_PK}
             className={`col-span-1 cursor-pointer border p-2 ${selectedSeats.includes(ticket) ? 'border-4 border-black' : ''} ${
               ticket.TICKET_STATUS ? 'bg-gray-400' : getSeatColor(ticket.TICKET_GRADE)
             }`}
@@ -229,7 +235,7 @@ export default function Home() {
           <h2 className="mb-2 text-xl font-bold">고른 좌석</h2>
           <div className="border-b-2 border-t-2 border-black">
             {selectedSeats.map((ticket, index) => (
-              <div key={ticket.TICKET_SEAT} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
+              <div key={ticket.TICKET_PK} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
                 <div className="flex">
                   <div className="flex w-1/3 items-center justify-center bg-gray-200 p-2">
                     <div className="font-bold">좌석층수</div>
