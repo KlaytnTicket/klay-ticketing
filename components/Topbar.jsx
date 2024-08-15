@@ -18,7 +18,6 @@ export default function Topbar() {
   const handleLogout = () =>{
     localStorage.removeItem('user');
     setUser(null);
-    router.reload();
   }
 
   return (
@@ -35,6 +34,7 @@ export default function Topbar() {
       ) : (
         <div className="flex items-center gap-5">
           <div className="text-lg font-extrabold">{user.nickname}</div>
+          <ButtonA URL={`mypage/${user.userID}`} label={'마이 페이지'} width={100} />
           <ButtonA 
             URL="mainpage"
             onClick={handleLogout} label={'로그아웃'} width={80} 

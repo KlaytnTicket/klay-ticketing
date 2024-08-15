@@ -8,6 +8,8 @@ export default function MyPage(props) {
   if (!props || !props.result) {
     return <div>loading...</div>;
   }
+  
+
   return (
     <div>
       <div>
@@ -58,7 +60,7 @@ export default function MyPage(props) {
 export async function getServerSideProps(req) {
   const { user_id } = req.query;
   const result = await executeQuery(`SELECT * FROM "USER" WHERE "USER_ID" = '${user_id}'`);
-  const c = await executeQuery('SELECT * FROM "NFT" WHERE "USER_ID" = \'asdf\' AND "NFT_STATUS" = true');
+  const c = await executeQuery(`SELECT * FROM "NFT" WHERE "USER_ID" = '${user_id}' AND "NFT_STATUS" = true`);
   return {
     props: {
       result,
