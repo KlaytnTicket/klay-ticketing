@@ -1,5 +1,5 @@
 import caver from '@lib/caver/caver';
-import { contractABI } from '@lib/caver/contract-abi';
+import contractABI from '@lib/caver/contract-abi';
 
 async function GET(req, res) {
   res.status(200).json({ message: 'caver' });

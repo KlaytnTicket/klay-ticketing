@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 
 export default async function handler(req, res) {
-  const {userID} = req.query;
+  const { userID } = req.query;
 
   const client = new Client({
     host: process.env.DB_HOST,
@@ -13,15 +13,12 @@ export default async function handler(req, res) {
 
   try {
     await client.connect();
-    const result = await client.query(
-      'SELECT "USER_POINT" FROM "USER" WHERE "USER_ID" = $1',
-      [userID]
-    );
+    const result = await client.query('SELECT "USER_POINT" FROM "USER" WHERE "USER_ID" = $1', [userID]);
     await client.end();
 
     res.status(200).json(result.rows[0]);
   } catch (error) {
-    console.error('Database query error:', error);
+    // console.error('Database query error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 }

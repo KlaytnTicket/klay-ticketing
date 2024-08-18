@@ -1,6 +1,6 @@
 import { Client } from 'pg';
 
-export default async function (req, res) {
+export default async function handler(req, res) {
   const { id } = req.query;
 
   const client = new Client({
@@ -29,7 +29,7 @@ export default async function (req, res) {
       });
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: '데이터 패치 실패' });
   }
 }

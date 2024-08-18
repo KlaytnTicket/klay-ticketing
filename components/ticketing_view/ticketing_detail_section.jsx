@@ -35,7 +35,7 @@ export default function DeatilTicketingSection(props) {
     return result;
   }
 
-  //가격별 좌석 나누는거 부터 불러오도록
+  // 가격별 좌석 나누는거 부터 불러오도록
   useEffect(() => {
     if (event && event.tickets) {
       const TicketGradePrice = getUniqueTicketGrades(event.tickets);

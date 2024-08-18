@@ -1,10 +1,10 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import ButtonA from './ButtonA';
 import Image from 'node_modules/next/image';
 import Link from 'node_modules/next/link';
-import LOGO from '../image/logo.png';
 import { useRouter } from 'node_modules/next/router';
+import React, { useEffect, useState } from 'react';
+
+import ButtonA from './ButtonA';
+import LOGO from '../image/logo.png';
 
 export default function Topbar() {
   const [user, setUser] = useState(null);
@@ -15,10 +15,10 @@ export default function Topbar() {
     setUser(storedUser);
   }, [router.asPath]);
 
-  const handleLogout = () =>{
+  const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
-  }
+  };
 
   return (
     <div className="flex h-24 w-full items-center justify-between border-b-2 bg-[#F3F4F6] px-16 text-slate-500">
@@ -35,10 +35,7 @@ export default function Topbar() {
         <div className="flex items-center gap-5">
           <div className="text-lg font-extrabold">{user.nickname}</div>
           <ButtonA URL={`mypage/${user.userID}`} label={'마이 페이지'} width={100} />
-          <ButtonA 
-            URL="mainpage"
-            onClick={handleLogout} label={'로그아웃'} width={80} 
-          />
+          <ButtonA URL="mainpage" onClick={handleLogout} label={'로그아웃'} width={80} />
         </div>
       )}
     </div>

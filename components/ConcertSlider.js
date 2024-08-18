@@ -12,13 +12,13 @@ export default function ConcertSlider() {
         const res = await axios.get('/api/events/events');
         setEvents(res.data);
       } catch (error) {
-        console.log('이벤트 목록 패치 에러: ', error);
+        // console.log('이벤트 목록 패치 에러: ', error);
       }
     }
     fetchEvents();
   }, []);
 
-  var settings = {
+  const settings = {
     dots: true, // 페이지네이션 점
     infinite: true, // 무한 루프
     speed: 500, // 슬라이드 이동 속도

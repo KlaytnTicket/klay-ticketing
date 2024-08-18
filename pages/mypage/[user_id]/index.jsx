@@ -8,8 +8,6 @@ export default function MyPage(props) {
   if (!props || !props.result) {
     return <div>loading...</div>;
   }
-  
-
   return (
     <div>
       <div>

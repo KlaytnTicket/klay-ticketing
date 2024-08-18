@@ -81,23 +81,22 @@ export default function FixedTicketingSection(props) {
         {/* Render tickets or hello based on the presence of tickets */}
         {hasTicketsForSelectedDate ? (
           groupedTickets.map(
-            (ticketDate, index) =>
-              ticketDate.date === formatDate(selectedDate) && (
-                <div key={index} className="pt-1">
-                  {ticketDate.times.map((timeSlot, idx) => (
-                    <div key={idx} id={timeSlot.time} className="flex items-center justify-between space-x-3 pt-5">
-                      <div
-                        onClick={() => setChoose(timeSlot.time)}
-                        className={`relative flex h-10 w-28 cursor-pointer select-none items-center justify-center rounded-3xl ${choose === timeSlot.time ? 'bg-[#EF88D8] text-[#FFFFFF]' : 'bg-[#C8CBE8] text-black'} shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)] transition-colors duration-300 hover:bg-[#EF88D8] hover:text-[#FFFFFF]`}
-                      >
-                        <div className="absolute left-[10px] top-0 text-[10px]">{idx + 1}회</div>
-                        <div>{timeSlot.time}</div>
-                      </div>
-                      <div className="text-[10px]">잔여 좌석 : {timeSlot.emptySeats}석</div>
+            (ticketDate, index) => ticketDate.date === formatDate(selectedDate) && (
+              <div key={index} className="pt-1">
+                {ticketDate.times.map((timeSlot, idx) => (
+                  <div key={idx} id={timeSlot.time} className="flex items-center justify-between space-x-3 pt-5">
+                    <div
+                      onClick={() => setChoose(timeSlot.time)}
+                      className={`relative flex h-10 w-28 cursor-pointer select-none items-center justify-center rounded-3xl ${choose === timeSlot.time ? 'bg-[#EF88D8] text-[#FFFFFF]' : 'bg-[#C8CBE8] text-black'} shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)] transition-colors duration-300 hover:bg-[#EF88D8] hover:text-[#FFFFFF]`}
+                    >
+                      <div className="absolute left-[10px] top-0 text-[10px]">{idx + 1}회</div>
+                      <div>{timeSlot.time}</div>
                     </div>
-                  ))}
-                </div>
-              ),
+                    <div className="text-[10px]">잔여 좌석 : {timeSlot.emptySeats}석</div>
+                  </div>
+                ))}
+              </div>
+            ),
           )
         ) : (
           <div className="p-4">
@@ -107,12 +106,12 @@ export default function FixedTicketingSection(props) {
       </div>
       <div
         onClick={() => {
-         if(choose !== 0){
-          router.push({
-            pathname: '/reservation',
-            query: {ticket_time: choose, event_pk: id},
-          });
-         } 
+          if (choose !== 0) {
+            router.push({
+              pathname: '/reservation',
+              query: { ticket_time: choose, event_pk: id },
+            });
+          }
         }}
         className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] items-center justify-center rounded-xl ${choose === 0 ? 'bg-[#383838]' : 'bg-[#4579FF]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
       >

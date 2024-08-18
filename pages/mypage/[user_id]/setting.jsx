@@ -53,17 +53,17 @@ export default function MyPageSetting(props) {
       <div>
         <form className="flex justify-center" onSubmit={handleSubmit(onValid, onInValid)}>
           <div>
-            <p className="p-1 flex gap-2 items-center">
+            <p className="flex items-center gap-2 p-1">
               <span>이메일</span>
-              <span className="border border-black rounded-md px-1 py-[2px] bg-gray-300">{e}</span>
+              <span className="rounded-md border border-black bg-gray-300 px-1 py-[2px]">{e}</span>
             </p>
-            <div className="p-1 flex gap-2 items-center">
+            <div className="flex items-center gap-2 p-1">
               <label htmlFor="nickname">닉네임</label>
-              <input id="nickname" className="border border-black rounded-md px-1 py-[2px]" type="text" {...register('USER_NICKNAME')} />
+              <input id="nickname" className="rounded-md border border-black px-1 py-[2px]" type="text" {...register('USER_NICKNAME')} />
             </div>
-            <div className="p-1 flex gap-2 items-center">
+            <div className="flex items-center gap-2 p-1">
               <label htmlFor="wallet">지갑주소</label>
-              <input id="wallet" className="border border-black rounded-md px-1 py-[2px]" type="text" {...register('USER_WALLET')} />
+              <input id="wallet" className="rounded-md border border-black px-1 py-[2px]" type="text" {...register('USER_WALLET')} />
             </div>
             {m !== '' && <p className="w-full text-center font-bold text-blue-500">{m}</p>}
             <div className="flex justify-end gap-4">

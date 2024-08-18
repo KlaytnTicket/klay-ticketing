@@ -1,7 +1,6 @@
-'use client';
+import Image from 'node_modules/next/image';
 import React from 'react';
 
-import Image from 'node_modules/next/image';
 import footer from '../image/footer.png';
 
 export default function Footer() {

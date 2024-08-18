@@ -1,12 +1,12 @@
-import { Client } from "pg";
+import { Client } from 'pg';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { userID, userPSW, userNICKNAME, userWALLET, userEMAIL } = req.body;
 
     if (!userID || !userPSW || !userNICKNAME || !userWALLET || !userEMAIL) {
-      console.error('요구 필드 미스');
-      return res.status(400).json({ message: '정보를 모두 입력하세요.' });
+      // console.error('요구 필드 미스');
+      res.status(400).json({ message: '정보를 모두 입력하세요.' });
     }
 
     const client = new Client({
@@ -25,9 +25,9 @@ export default async function handler(req, res) {
       const checkUser = await client.query(checkQuery, [userID]);
 
       if (checkUser.rows.length > 0) {
-        console.error('이미 존재하는 아이디');
+        // console.error('이미 존재하는 아이디');
         await client.end();
-        return res.status(400).json({ message: '이미 존재하는 아이디입니다.' });
+        res.status(400).json({ message: '이미 존재하는 아이디입니다.' });
       }
 
       const insertUser = `
@@ -39,16 +39,14 @@ export default async function handler(req, res) {
       await client.query(insertUser, values);
       await client.end();
 
-      console.log('회원가입 성공');
+      // console.log('회원가입 성공');
       res.status(201).json({ message: '회원가입 성공' });
-
     } catch (error) {
-      console.error('DB 쿼리 에러', error);
+      // console.error('DB 쿼리 에러', error);
       res.status(500).json({ message: '서버 에러' });
     }
-
   } else {
-    console.error('메서드 오류');
+    // console.error('메서드 오류');
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`메서드 ${req.method}는 허용되지 않음`);
   }

@@ -1,8 +1,9 @@
 import { useRouter } from 'next/router';
 import axios from 'node_modules/axios/index';
 import { useEffect, useState } from 'react';
-import FixedTicketingSection from '../../components/ticketing_view/ticketing_fixed_section';
+
 import DeatilTicketingSection from '../../components/ticketing_view/ticketing_detail_section';
+import FixedTicketingSection from '../../components/ticketing_view/ticketing_fixed_section';
 
 export default function CaverTestPage() {
   const router = useRouter();
@@ -10,16 +11,17 @@ export default function CaverTestPage() {
 
   const [event, setEvent] = useState(null);
 
+  async function fetchEvent() {
+    try {
+      const res = await axios.get(`/api/events/${id}`);
+      setEvent(res.data);
+    } catch (error) {
+      /* empty */
+    }
+  }
+
   useEffect(() => {
     if (id) {
-      async function fetchEvent() {
-        try {
-          const res = await axios.get(`/api/events/${id}`);
-          setEvent(res.data);
-        } catch (error) {
-          console.log('이벤트 패치 에러: ', error);
-        }
-      }
       fetchEvent();
     }
   }, [id]);

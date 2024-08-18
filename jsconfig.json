@@ -4,13 +4,13 @@
     "module": "ESNext",
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["/components/*"],
+      "@components/*": ["./components/*"],
       "@lib/*": ["./lib/*"],
-      "@pages/*": ["pages/*"],
-      "@public/*": ["public/*"],
+      "@pages/*": ["./pages/*"],
+      "@public/*": ["./public/*"],
       "@styles/*": ["./styles/*"]
     }
   },
-  "include": ["**/*.js", "**/*.jsx", "pages/_documents.jsx"],
+  "include": ["**/*.js", "**/*.jsx"],
   "exclude": ["node_modules"]
 }

@@ -12,17 +12,15 @@ export default function Home() {
   const [error, setError] = useState(null); // 에러 상태 추가
   const router = useRouter(); // next.js 라우터
 
-  const {ticket_time, event_pk} = router.query; //이벤트 pk랑 시간대 받아오는 거 ==> 티켓정보 불러오기
+  const { ticket_time, event_pk } = router.query; // 이벤트 pk랑 시간대 받아오는 거 ==> 티켓정보 불러오기
   const [user, setUser] = useState(null);
-  
 
-  //User 아이디 불러오기
+  // User 아이디 불러오기
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     setUser(storedUser);
   }, []);
-  
-  
+
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
@@ -37,9 +35,9 @@ export default function Home() {
         const { TICKET_DATE, ...restTicketInfo } = res.data.ticketInfo;
         const date = new Date(TICKET_DATE);
         const formattedDate = date.toISOString().split('T')[0];
-        const ticketInfo = { TICKET_DATE: formattedDate, ...restTicketInfo };
+        const ticketinfo = { TICKET_DATE: formattedDate, ...restTicketInfo };
 
-        setTicketInfo(ticketInfo);
+        setTicketInfo(ticketinfo);
         setTickets(res.data.tickets);
       } catch (errors) {
         setError('데이터를 불러오지 못했습니다');
@@ -49,10 +47,10 @@ export default function Home() {
     };
 
     const fetchUserPoint = async () => {
-      try {        
-        const userID = user.userID;
+      try {
+        const { userID } = user;
         const res = await axios.get('/api/tickets/user', {
-          params: {userID},
+          params: { userID },
           headers: {
             'Cache-Control': 'no-cache', // 캐시 무시
           },
@@ -145,16 +143,16 @@ export default function Home() {
 
   const getSeatColor = (grade) => {
     switch (grade) {
-      case 'S':
-        return 'bg-red-500';
-      case 'A':
-        return 'bg-purple-500';
-      case 'B':
-        return 'bg-yellow-500';
-      case 'C':
-        return 'bg-green-500';
-      default:
-        return 'bg-gray-200';
+    case 'S':
+      return 'bg-red-500';
+    case 'A':
+      return 'bg-purple-500';
+    case 'B':
+      return 'bg-yellow-500';
+    case 'C':
+      return 'bg-green-500';
+    default:
+      return 'bg-gray-200';
     }
   };
 
@@ -175,7 +173,6 @@ export default function Home() {
     router.push('/previous');
   };
 
-  
   return (
     <div className="container mx-auto p-4">
       {/* 헤더 */}

@@ -1,9 +1,8 @@
-import Head from "next/head";
-import ConcertSlider from "components/ConcertSlider";
+import ConcertSlider from 'components/ConcertSlider';
+import Head from 'next/head';
 
-
-export default function Home(){
-  return(
+export default function Home() {
+  return (
     <div>
       <Head>
         <title>Klayten_Ticketing</title>
@@ -11,12 +10,11 @@ export default function Home(){
 
       {/* 콘서트목록 들어올 장소  */}
       <div className="bg-slate-200">
-        <main className="mt-20 justify-center w-4/5 mx-auto">
+        <main className="mx-auto mt-20 w-4/5 justify-center">
           <div>
-            <h1 className="font-bold text-center">콘서트 목록</h1>
+            <h1 className="text-center font-bold">콘서트 목록</h1>
             {/* 목록 받기 */}
-            <div className="border-slate-500 border-y-2 
-              mt-4 py-8">
+            <div className="mt-4 border-y-2 border-slate-500 py-8">
               <ConcertSlider />
             </div>
           </div>
