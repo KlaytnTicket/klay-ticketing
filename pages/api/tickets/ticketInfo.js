@@ -15,15 +15,16 @@ export default async function handler(req, res) {
     await client.connect();
 
     const ticketInfoQuery = `
-      SELECT "TICKET_NAME", "TICKET_DATE", "TICKET_TIME", "TICKET_PLACE" 
+      SELECT "NFT_NAME", "TICKET_DATE", "TICKET_TIME", "PLACE" 
       FROM "TICKET" 
-      WHERE "EVENT_PK" = $1 AND "TICKET_TIME" = $2
+      WHERE "EVENT_ID" = $1 AND "TICKET_TIME" = $2
     `;
+
     const ticketParams = [event_pk, ticket_time];
 
     const ticketInfoRows = await client.query(ticketInfoQuery, ticketParams);
 
-    const ticketsRows = await client.query('SELECT * FROM "TICKET" WHERE "TICKET_FLOOR" = $1', [floor]);
+    const ticketsRows = await client.query('SELECT * FROM "TICKET" WHERE "SEAT_FLOOR" = $1', [floor]);
 
     await client.end();
 

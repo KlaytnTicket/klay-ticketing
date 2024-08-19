@@ -30,6 +30,9 @@ export default function CaverTestPage() {
     return <div className="mt-20 flex min-h-screen justify-center">Loading... 로딩이 길어진다면 뒤로가기 혹은 새로고침을 해주세요</div>;
   }
 
+  console.log(event);
+  console.log(id);
+
   return (
     <>
       <FixedTicketingSection event={event} id={id} />

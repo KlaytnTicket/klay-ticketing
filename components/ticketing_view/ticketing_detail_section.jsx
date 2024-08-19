@@ -26,8 +26,8 @@ export default function DeatilTicketingSection(props) {
     const ticketMap = new Map();
 
     tickets.forEach((ticket) => {
-      if (!ticketMap.has(ticket.TICKET_GRADE)) {
-        ticketMap.set(ticket.TICKET_GRADE, ticket.TICKET_PRICE);
+      if (!ticketMap.has(ticket.SEAT_GRADE)) {
+        ticketMap.set(ticket.SEAT_GRADE, ticket.PRICE);
       }
     });
 
@@ -47,22 +47,28 @@ export default function DeatilTicketingSection(props) {
     <div className="px-44 py-16">
       {/* --------------------- 티케팅 관련 내용 소개 섹션 ---------------*/}
       <div className="pb-10">
-        <div className="px-2 text-3xl font-extrabold">{event.event.EVENT_NAME}</div>
+        <div className="px-2 text-3xl font-extrabold">{event.event.NAME}</div>
       </div>
       <div className="flex">
         {/* 이미지 불러오는 기능 알아봐야하. */}
         <Image src={testImage} alt="이미지" width={320} height={240} className="w-80" />
         <div className="flex flex-col space-y-3 px-10 text-lg font-extrabold">
           <div>티케팅 현황 : </div>
+          <div>유형 : </div>
           <div>장소 : </div>
-          <div>경기기간 : </div>
+          <div>이벤트 진행 : </div>
+          <div>티켓팅 기간 : </div>
           <div>가격 </div>
         </div>
         <div className="flex flex-col space-y-[17px] pt-[2px] font-extrabold">
-          <div className="whitespace-nowrap">{event.event.EVENT_STATUS ? '진행중' : '종료'}</div>
-          <div className="whitespace-nowrap">{event.event.EVENT_SITE}</div>
+          <div className="whitespace-nowrap">{event.event.TICKETING_IS_OPEN ? '종료' : '진행 중'}</div>
+          <div className="whitespace-nowrap">{event.event.TAG}</div>
+          <div className="whitespace-nowrap">{event.event.SITE}</div>
           <div className="whitespace-nowrap">
             {formatDate(event.event.EVENT_START)} ~ {formatDate(event.event.EVENT_END)}
+          </div>
+          <div className="whitespace-nowrap">
+            {formatDate(event.event.TICKETING_START)} ~ {formatDate(event.event.TICKETING_END)}
           </div>
           <div className="flex flex-col space-y-3 pt-3">
             {ticketGradePrice?.map((ticket, index) => (

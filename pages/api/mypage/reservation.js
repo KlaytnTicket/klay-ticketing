@@ -4,7 +4,7 @@ async function GET(req, res) {
   const { user_id } = req.query;
   try {
     const r = await executeQuery(
-      `SELECT * FROM "NFT" AS n JOIN "TICKET" AS t ON n."TICKET_PK" = t."TICKET_PK" JOIN "TICKETING_EVENT" AS e ON n."EVENT_PK" = e."EVENT_PK" WHERE "USER_ID" = '${user_id}'`,
+      `SELECT * FROM "TICKET" AS t JOIN "EVENT" AS e ON t."ID" = e."ID" WHERE "USER_ID" = '${user_id}'`,
     );
     res.status(200).json({ r });
   } catch (error) {

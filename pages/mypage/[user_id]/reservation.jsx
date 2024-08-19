@@ -18,14 +18,14 @@ export default function MyPageReservation(props) {
   return (
     <div>
       <div>
-        <h1 className="text-xl font-bold">최근 예매내역</h1>
+        <h1 className="text-xl font-bold ml-5 mt-5">최근 예매내역</h1>
       </div>
-      <div className="m-auto max-w-[80vw]">
+      <div className="m-auto max-w-[80vw] mt-10 pb-10">
         <table className="w-full">
           <thead className="bg-slate-100">
             <tr>
               <th>공연이름</th>
-              <th>티켓좌석</th>
+              <th>NFT명</th>
               <th>가격</th>
               <th>티켓등급</th>
               <th>공연일</th>
@@ -35,12 +35,12 @@ export default function MyPageReservation(props) {
           <tbody className="text-center">
             {r.map((i, k) => (
               <tr key={k} className="border-b">
-                <td>{i.EVENT_NAME}</td>
-                <td>{i.EVENT_NAME}</td>
-                <td>{i.TICKET_PRICE.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원</td>
-                <td>{i.TICKET_GRADE}</td>
+                <td>{i.NAME}</td>
+                <td>{i.NFT_NAME}</td>
+                <td>{i.PRICE.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원</td>
+                <td>{i.SEAT_GRADE}</td>
                 <td>{d[k]}</td>
-                <td>{i.NFT_STATUS ? '사용 가능' : '사용 불가능'}</td>
+                <td>{i.IS_USED ? '사용 가능' : '사용 불가능'}</td>
               </tr>
             ))}
             <tr></tr>

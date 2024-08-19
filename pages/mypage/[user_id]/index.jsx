@@ -11,10 +11,12 @@ export default function MyPage(props) {
   return (
     <div>
       <div>
-        <h1 className="text-xl font-bold">마이페이지</h1>
-        {u.USER_NICKNAME}님 환영합니다.
+        <h1 className="text-xl font-bold ml-5 mt-5">마이페이지</h1>
+        <p className="mt-2 ml-5">
+          <span className="">{u.USER_NICKNAME}</span> 님 환영합니다.
+        </p>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-5">
         <div className="h-32 w-[75%] rounded-lg bg-gray-300 shadow-lg">
           <ul className="grid h-full grid-flow-col grid-cols-3 items-center">
             <li className="p-4">
@@ -32,18 +34,22 @@ export default function MyPage(props) {
           </ul>
         </div>
       </div>
-      <div className="flex justify-center gap-4">
-        <div className="p-4">
+      <div className="flex justify-between">
+        <div className="p-4 ml-60">
           <ul>
             <li className="my-2">
               <Link href={`/mypage/${u.USER_ID}/setting`}>회원정보 수정</Link>
             </li>
-            <li className="my-2">
-              <Link href={`/mypage/${u.USER_ID}/reservation`}>최근 예매내역</Link>
-            </li>
           </ul>
         </div>
         <div className="p-4">
+          <ul>
+            <li className="my-2">
+            <Link href={`/mypage/${u.USER_ID}/reservation`}>최근 예매내역</Link>
+            </li>
+          </ul>
+        </div>
+        <div className="p-4 mr-60">
           <ul>
             <li className="my-2">
               <a href="mailto:qjawns10000@naver.com">고객 센터</a>

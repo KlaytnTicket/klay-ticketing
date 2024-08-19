@@ -9,14 +9,14 @@ export default async function events(req, res) {
     password: process.env.DB_PASSWORD,
   });
 
-  try {
-    await client.connect();
-    const result = await client.query('SELECT * FROM "TICKETING_EVENT"');
-    await client.end();
-
-    res.status(200).json(result.rows);
-  } catch (error) {
-    // console.error(error);
-    res.status(500).json({ error: '데이터 패치 실패' });
-  }
+	try {
+		await client.connect();
+		const result = await client.query('SELECT * FROM "EVENT"');		
+		await client.end();
+		
+		res.status(200).json(result.rows);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: '데이터 패치 실패' });		
+	}
 }

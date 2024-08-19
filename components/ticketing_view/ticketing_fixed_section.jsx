@@ -1,5 +1,5 @@
 import { useRouter } from 'node_modules/next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function FixedTicketingSection(props) {
   const { event, id } = props;
@@ -28,7 +28,7 @@ export default function FixedTicketingSection(props) {
     tickets.forEach((ticket) => {
       const date = new Date(ticket.TICKET_DATE).toISOString().split('T')[0];
       const time = ticket.TICKET_TIME.substring(0, 5);
-      const status = ticket.TICKET_STATUS;
+      const status = ticket.IS_USED;
 
       if (!dateMap.has(date)) {
         dateMap.set(date, new Map());
@@ -63,6 +63,26 @@ export default function FixedTicketingSection(props) {
   const groupedTickets = TimeAndEmptySeats(event.tickets);
   const hasTicketsForSelectedDate = groupedTickets.some((ticketDate) => ticketDate.date === formatDate(selectedDate));
 
+  // 로그인 여부 확인
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
+  }, []);
+
+  function checkUser(){
+    if(user === null){
+      alert('로그인을 해주세요.');
+    }
+
+    if(user !== null && choose !== 0){
+      router.push({
+        pathname: '/reservation',
+        query: {ticket_time: choose, event_pk: id},
+      });
+     }
+  }
+
   return (
     <>
       <div className="fixed right-32 top-40 flex h-[450px] w-[280px] flex-col rounded-2xl bg-[#4579FF] px-7 py-5 font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)]">
@@ -76,6 +96,7 @@ export default function FixedTicketingSection(props) {
             &gt;
           </div>
         </div>
+
         <div id="section-bar" className="h-[1px] w-full bg-white" />
         <div className="pt-5">회차</div>
         {/* Render tickets or hello based on the presence of tickets */}
@@ -105,14 +126,7 @@ export default function FixedTicketingSection(props) {
         )}
       </div>
       <div
-        onClick={() => {
-          if (choose !== 0) {
-            router.push({
-              pathname: '/reservation',
-              query: { ticket_time: choose, event_pk: id },
-            });
-          }
-        }}
+        onClick={checkUser}
         className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] items-center justify-center rounded-xl ${choose === 0 ? 'bg-[#383838]' : 'bg-[#4579FF]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
       >
         <div>예매하기</div>

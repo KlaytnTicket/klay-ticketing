@@ -14,9 +14,9 @@ export default async function handler(req, res) {
   try {
     await client.connect();
 
-    const EventResult = await client.query('SELECT * FROM "TICKETING_EVENT" WHERE "EVENT_PK" = $1', [id]);
+    const EventResult = await client.query('SELECT * FROM "EVENT" WHERE "ID" = $1', [id]);
 
-    const TicketResult = await client.query('SELECT * FROM "TICKET" WHERE "EVENT_PK" = $1', [id]);
+    const TicketResult = await client.query('SELECT * FROM "TICKET" WHERE "EVENT_ID" = $1', [id]);
 
     await client.end();
 
