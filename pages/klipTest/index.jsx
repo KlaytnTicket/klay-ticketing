@@ -1,5 +1,5 @@
-import axios from 'node_modules/axios/index';
-import { useState } from 'react';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [qrValue, setQrvalue] = useState('');
@@ -7,8 +7,18 @@ export default function Home() {
   const [requestKey, setRequestKey] = useState('');
   const [nfts, setNfts] = useState([]);
   const [error, setError] = useState('');
+  const [getCardList, setGetCardList] = useState(null);
 
-  // Klip API로 qr 코드 요청
+  // 클라이언트사이드에서 동적으로 getCardList 함수 로드  (window 어쩌구 오류 해결)
+  useEffect(() => {
+    const loadGetCardList = async () => {
+      const { getCardList } = await import('klip-sdk');
+      setGetCardList(() => getCardList);
+    };
+    loadGetCardList();
+  }, []);
+
+  // Klip API로 QR 코드 요청
   const requestKlip = async () => {
     try {
       const res = await axios.post('https://a2a-api.klipwallet.com/v2/a2a/prepare', {
@@ -35,19 +45,35 @@ export default function Home() {
         const userAddress = res.data.result.klaytn_address;
         setAddress(userAddress);
       } else {
-        // console.log('보류 중...');
+        console.log('보류 중...');
       }
     } catch (err) {
-      // console.error('Klip 결과 체크 실패', error);
+      console.error('Klip 결과 체크 실패', err);
     }
   };
 
-  const fetchNFTs = async (addr) => {
+  // getcardlist 이용해서 가지고있는 nft 검색하는 기능 contract 주소에 대해서는 질문 예정
+  const fetchNfts = async () => {
+    if (!getCardList) {
+      console.error('getCardList 함수가 로드되지 않았습니다.');
+      return;
+    }
+
     try {
-      const res = await axios.get(`/api/klipApi/fetchNFTs?address=${addr}`);
-      setNfts(res.data);
-    } catch (err) {
-      // console.error('NFT 패치 실패', error);
+      const response = await getCardList({
+        contract: '0xb26e09db6656b998d2913f13870e06c151c37900',
+        eoa: address,
+        cursor: '',
+      });
+
+      if (response && response.cards) {
+        setNfts(response.cards);
+        console.log(nfts);
+      } else {
+        console.error('No NFTs found.');
+      }
+    } catch (error) {
+      console.error('Error fetching NFTs:', error);
     }
   };
 
@@ -67,6 +93,17 @@ export default function Home() {
       {address && (
         <div>
           <p>지갑 주소: {address}</p>
+          <button onClick={fetchNfts}>NFT 목록 조회</button>
+          {nfts.length > 0 && (
+            <div>
+              <h2>NFTs</h2>
+              <ul>
+                {nfts.map((nft, index) => (
+                  <li key={index}>{nft.card_id}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
