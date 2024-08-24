@@ -1,38 +1,41 @@
-import { Client } from 'pg';
+import { executeQuery } from '@lib/postgres';
 
-export default async function handler(req, res) {
+async function GET(req, res) {
   const { floor, event_pk, ticket_time } = req.query;
 
-  const client = new Client({
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-  });
-
   try {
-    await client.connect();
+    const ticketInfoRows = [];
+    if (event_pk && ticket_time) {
+      const result = await executeQuery(
+        `SELECT "NFT_NAME", "TICKET_DATE", "TICKET_TIME", "PLACE" FROM "TICKET" WHERE "EVENT_ID" = '${String(event_pk)}' AND "TICKET_TIME" = '${String(ticket_time)}'`,
+      );
+      ticketInfoRows.push(result);
+    }
 
-    const ticketInfoQuery = `
-      SELECT "NFT_NAME", "TICKET_DATE", "TICKET_TIME", "PLACE" 
-      FROM "TICKET" 
-      WHERE "EVENT_ID" = $1 AND "TICKET_TIME" = $2
-    `;
+    const ticketsRows = [];
+    if (floor) {
+      const result = await executeQuery(`SELECT * FROM "TICKET" WHERE "SEAT_FLOOR" = ${Number(floor)}`);
+      ticketsRows.push(result);
+    }
 
-    const ticketParams = [event_pk, ticket_time];
-
-    const ticketInfoRows = await client.query(ticketInfoQuery, ticketParams);
-
-    const ticketsRows = await client.query('SELECT * FROM "TICKET" WHERE "SEAT_FLOOR" = $1', [floor]);
-
-    await client.end();
-
-    res.status(200).json({
-      ticketInfo: ticketInfoRows.rows[0],
-      tickets: ticketsRows.rows,
+    return res.status(200).json({
+      ticketInfo: ticketInfoRows[0],
+      tickets: ticketsRows,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+export default async function handler(req, res) {
+  const { method } = req;
+
+  switch (method) {
+  case 'GET':
+    return GET(req, res);
+  default:
+    return res.status(405).json({
+      message: 'Not Support Method',
+    });
   }
 }

@@ -21,7 +21,7 @@ export default function Topbar() {
   };
 
   return (
-    <div className="flex h-24 w-full items-center justify-between border-b-2 bg-[#F3F4F6] px-16 text-slate-500">
+    <div className="flex h-24 w-full items-center justify-between overflow-hidden border-b-2 bg-[#F3F4F6] px-16 text-slate-500">
       <Link href={'/mainpage'} className="py-4">
         <Image className="w-52 cursor-pointer" src={LOGO} alt="" />
       </Link>

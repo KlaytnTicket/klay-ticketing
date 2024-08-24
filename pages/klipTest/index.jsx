@@ -6,14 +6,13 @@ export default function Home() {
   const [address, setAddress] = useState('');
   const [requestKey, setRequestKey] = useState('');
   const [nfts, setNfts] = useState([]);
-  const [error, setError] = useState('');
   const [getCardList, setGetCardList] = useState(null);
 
   // 클라이언트사이드에서 동적으로 getCardList 함수 로드  (window 어쩌구 오류 해결)
   useEffect(() => {
     const loadGetCardList = async () => {
-      const { getCardList } = await import('klip-sdk');
-      setGetCardList(() => getCardList);
+      const { getCardList: getCards } = await import('klip-sdk');
+      setGetCardList(() => getCards);
     };
     loadGetCardList();
   }, []);
@@ -31,7 +30,7 @@ export default function Home() {
       const { request_key } = res.data;
       setRequestKey(request_key);
       setQrvalue(`https://klipwallet.com/?target=/a2a?request_key=${request_key}`);
-    } catch (err) {
+    } catch (error) {
       // console.error('Klip 요청 실패', error);
     }
   };
@@ -45,17 +44,17 @@ export default function Home() {
         const userAddress = res.data.result.klaytn_address;
         setAddress(userAddress);
       } else {
-        console.log('보류 중...');
+        // console.log('보류 중...');
       }
     } catch (err) {
-      console.error('Klip 결과 체크 실패', err);
+      // console.error('Klip 결과 체크 실패', err);
     }
   };
 
   // getcardlist 이용해서 가지고있는 nft 검색하는 기능 contract 주소에 대해서는 질문 예정
   const fetchNfts = async () => {
     if (!getCardList) {
-      console.error('getCardList 함수가 로드되지 않았습니다.');
+      // console.error('getCardList 함수가 로드되지 않았습니다.');
       return;
     }
 
@@ -68,12 +67,12 @@ export default function Home() {
 
       if (response && response.cards) {
         setNfts(response.cards);
-        console.log(nfts);
+        // console.log(nfts);
       } else {
-        console.error('No NFTs found.');
+        // console.error('No NFTs found.');
       }
     } catch (error) {
-      console.error('Error fetching NFTs:', error);
+      // console.error('Error fetching NFTs:', error);
     }
   };
 

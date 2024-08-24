@@ -1,5 +1,5 @@
 async function GET(req, res) {
-  res.status(200).json({ message: 'api', version: 'v1' });
+  return res.status(200).json({ message: 'api', version: 'v1' });
 }
 
 export default async function handler(req, res) {
@@ -7,11 +7,9 @@ export default async function handler(req, res) {
 
   switch (method) {
   case 'GET':
-    await GET(req, res);
-    break;
+    return GET(req, res);
   default:
-    res.status(501).json({
-      ok: false,
+    return res.status(501).json({
       message: 'Not Support Method',
     });
   }

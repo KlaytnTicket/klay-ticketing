@@ -19,9 +19,7 @@ export default function MyPageSetting(props) {
 
   useEffect(() => {
     if (r) {
-      if (r.ok) {
-        s_m(r.message);
-      } else {
+      if (r.message) {
         s_m(r.message);
       }
     }
@@ -52,8 +50,8 @@ export default function MyPageSetting(props) {
       </div>
       <div className="mt-4">
         <form className="flex justify-center" onSubmit={handleSubmit(onValid, onInValid)}>
-          <div className='border-2 rounded-xl px-10 pt-10 pb-5 shadow-lg'>
-            <p className="p-1 flex gap-2 items-center">
+          <div className="rounded-xl border-2 px-10 pb-5 pt-10 shadow-lg">
+            <p className="flex items-center gap-2 p-1">
               <span>이메일</span>
               <span className="rounded-md border border-black bg-gray-300 px-1 py-[2px]">{e}</span>
             </p>
@@ -66,7 +64,7 @@ export default function MyPageSetting(props) {
               <input id="wallet" className="rounded-md border border-black px-1 py-[2px]" type="text" {...register('USER_WALLET')} />
             </div>
             {m !== '' && <p className="w-full text-center font-bold text-blue-500">{m}</p>}
-            <div className="flex justify-end gap-4 mt-10">
+            <div className="mt-10 flex justify-end gap-4">
               <button className="rounded-lg bg-gray-100 px-2 py-1" type="button" onClick={() => reset()}>
                 취소
               </button>

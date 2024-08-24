@@ -2,12 +2,12 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import { useState } from 'react';
 
-export default function InputDropZone({ s, a, c, o }) {
+export default function InputDropZone({ s, a, className, o }) {
   const [h, s_h] = useState(false);
 
   return (
     <figure
-      className={clsx('relative inline-block min-h-10 min-w-10 cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-gray-400', c)}
+      className={clsx('relative inline-block min-h-10 min-w-10 cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-gray-400', className)}
       onMouseEnter={() => s_h(true)}
       onMouseLeave={() => s_h(false)}
     >

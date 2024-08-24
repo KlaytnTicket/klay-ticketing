@@ -18,9 +18,9 @@ export default function MyPageReservation(props) {
   return (
     <div>
       <div>
-        <h1 className="text-xl font-bold ml-5 mt-5">최근 예매내역</h1>
+        <h1 className="ml-5 mt-5 text-xl font-bold">최근 예매내역</h1>
       </div>
-      <div className="m-auto max-w-[80vw] mt-10 pb-10">
+      <div className="m-auto mt-10 max-w-[80vw] pb-10">
         <table className="w-full">
           <thead className="bg-slate-100">
             <tr>

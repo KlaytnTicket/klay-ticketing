@@ -11,7 +11,7 @@
     "no-underscore-dangle": "off",
     "dot-notation": "off",
     "max-len": ["warn", { "code": 180, "ignoreComments": true }],
-    "indent": ["error", 2],
+    "indent": ["warn", 2],
     "eol-last": "error",
     "no-plusplus": "off",
     "object-curly-newline": 0,

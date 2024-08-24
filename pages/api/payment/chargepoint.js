@@ -36,13 +36,13 @@ export default async function handler(req, res) {
 
       await client.end();
 
-      res.status(200).json({ message: '결제 정보가 성공적으로 업데이트되었습니다.' });
+      return res.status(200).json({ message: '결제 정보가 성공적으로 업데이트되었습니다.' });
     } catch (error) {
-      console.error('DB 업데이트 중 오류 발생:', error);
-      res.status(500).json({ message: 'DB 업데이트 중 오류 발생' });
+      // console.error('DB 업데이트 중 오류 발생:', error);
+      return res.status(500).json({ message: 'DB 업데이트 중 오류 발생' });
     }
   } else {
     res.setHeader('Allow', ['POST']);
-    res.status(405).end(`메서드 ${req.method}는 허용되지 않음`);
+    return res.status(405).end(`메서드 ${req.method}는 허용되지 않음`);
   }
 }

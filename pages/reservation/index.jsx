@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
-  const [tickets, setTickets] = useState([]); //층 수에 따른 전체 티켓정보
-  const [ticketInfo, setTicketInfo] = useState({}); //티켓 이벤트 정보 가져오기
+  const [tickets, setTickets] = useState([]); // 층 수에 따른 전체 티켓정보
+  const [ticketInfo, setTicketInfo] = useState({}); // 티켓 이벤트 정보 가져오기
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [userPoint, setUserPoint] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -65,7 +65,7 @@ export default function Home() {
     fetchTicketData();
     fetchUserPoint();
   }, [floor, ticket_time, event_pk]);
-  
+
   useEffect(() => {
     const total = selectedSeats.reduce((sum, ticket) => sum + ticket.PRICE, 0);
     setTotalPrice(total);
@@ -76,39 +76,30 @@ export default function Home() {
       alert('이미 예매된 좌석입니다.');
       return;
     }
-  
+
     let newSelectedSeats = [...selectedSeats];
-  
+
     if (selectedSeats.includes(ticket)) {
       // 이미 고른 자리를 클릭하면 선택 풀림
       newSelectedSeats = selectedSeats.filter((seat) => seat !== ticket);
     } else {
       const row = ticket.SEAT_ROW;
-  
+
       if (selectedSeats.length === 0) {
         newSelectedSeats = [ticket];
       } else if (selectedSeats.length === 1) {
         const [firstSeat] = selectedSeats;
         const minColumn = Math.min(firstSeat.SEAT_COLUMN, ticket.SEAT_COLUMN);
         const maxColumn = Math.max(firstSeat.SEAT_COLUMN, ticket.SEAT_COLUMN);
-  
+
         // 첫 번째 좌석과 새로 선택된 좌석 사이의 모든 좌석을 가져옴
-        const middleSeats = tickets.filter(
-          (seat) =>
-            seat.SEAT_ROW === row &&
-            seat.SEAT_COLUMN > minColumn &&
-            seat.SEAT_COLUMN < maxColumn &&
-            !seat.IS_USED
-        );
-  
+        const middleSeats = tickets.filter((seat) => seat.SEAT_ROW === row && seat.SEAT_COLUMN > minColumn && seat.SEAT_COLUMN < maxColumn && !seat.IS_USED);
+
         // 중간 좌석들을 선택한 좌석 리스트에 추가
         newSelectedSeats = [firstSeat, ...middleSeats, ticket];
       } else if (selectedSeats.length === 2) {
         const [firstSeat, secondSeat] = selectedSeats;
-        if (
-          Math.abs(firstSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1 || 
-          Math.abs(secondSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1
-        ) {
+        if (Math.abs(firstSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1 || Math.abs(secondSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1) {
           // 고른 자리가 기존 자리랑 붙어 있으면
           newSelectedSeats = [...selectedSeats, ticket];
         } else {
@@ -118,23 +109,22 @@ export default function Home() {
         newSelectedSeats = [ticket];
       }
     }
-  
+
     // 선택된 좌석 수가 ticket_limit을 초과하면, 마지막에 선택한 좌석만 남기고 초기화
     if (newSelectedSeats.length > ticket_limit) {
       newSelectedSeats = [ticket];
     }
-  
+
     // 새로 고른 좌석들 총 포인트 계산
     const newTotalPrice = newSelectedSeats.reduce((sum, seat) => sum + seat.PRICE, 0);
-  
+
     if (newTotalPrice > userPoint) {
       alert('포인트가 부족합니다.');
     } else {
       setSelectedSeats(newSelectedSeats);
     }
   };
-  
-  
+
   const handleFloorChange = (direction) => {
     if (direction === 'prev' && floor > 1) {
       setFloor(floor - 1);
@@ -166,30 +156,27 @@ export default function Home() {
   const remainingCSeats = tickets.filter((ticket) => ticket.IS_USED !== 0 && ticket.SEAT_GRADE === 'C').length;
 
   const handleCompleteSelection = async () => {
-    if(totalPrice === 0){
-      alert("좌석 선택해라.");
-      return;
-    } else { 
+    if (totalPrice === 0) {
+      alert('좌석 선택해라.');
+    } else {
       try {
-        const {userID} = user;
+        const { userID } = user;
         const ticketIDs = selectedSeats.map((seat) => seat.ID);
 
-        const requestData = {userID, totalPrice, ticketIDs,};
+        const requestData = { userID, totalPrice, ticketIDs };
 
-        const res = await axios.post(
-          '/api/tickets/ticketbuy', requestData
-        );
+        const res = await axios.post('/api/tickets/ticketbuy', requestData);
 
-        if(res.status !== 200){
+        if (res.status !== 200) {
           throw new Error('결제 처리 오류');
         }
 
-        alert('결제 성공')
+        alert('결제 성공');
         setSelectedSeats([]); // 선택 좌석 초기화
         router.reload();
-      // router.push('/payment'); 
-      } catch (error) {
-        console.error(error);
+        // router.push('/payment');
+      } catch (errors) {
+        // console.error(error);
         alert('결제 처리 오류');
       }
     }

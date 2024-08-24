@@ -70,17 +70,17 @@ export default function FixedTicketingSection(props) {
     setUser(storedUser);
   }, []);
 
-  function checkUser(){
-    if(user === null){
+  function checkUser() {
+    if (user === null) {
       alert('로그인을 해주세요.');
     }
 
-    if(user !== null && choose !== 0){
+    if (user !== null && choose !== 0) {
       router.push({
         pathname: '/reservation',
-        query: {ticket_time: choose, event_pk: id, ticket_limit: event.event.TICKETING_LIMIT},
+        query: { ticket_time: choose, event_pk: id, ticket_limit: event.event.TICKETING_LIMIT },
       });
-     }
+    }
   }
 
   return (
