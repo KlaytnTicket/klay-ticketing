@@ -3,7 +3,7 @@ import { executeQuery } from '@lib/postgres';
 async function GET(req, res) {
   const { contract: ca, tokenId } = req.query;
   const ti = Number(tokenId);
-  if (!ca || !ti) {
+  if (ca === undefined || ti === undefined) {
     return res.status(400).json({ message: 'wrong parameters.' });
   }
   try {
