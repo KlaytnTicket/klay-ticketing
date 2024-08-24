@@ -22,7 +22,7 @@ export default function ConcertSlider() {
     dots: true, // 페이지네이션 점
     infinite: true, // 무한 루프
     speed: 500, // 슬라이드 이동 속도
-    slidesToShow: 1, // 보여줄 슬라이드 수
+    slidesToShow: 2, // 보여줄 슬라이드 수
     slidesToScroll: 1, // 스크롤 시 이동할 슬라이드 수
     arrows: true, // 좌우 버튼
   };
