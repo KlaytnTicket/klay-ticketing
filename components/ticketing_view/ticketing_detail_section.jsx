@@ -56,6 +56,7 @@ export default function DeatilTicketingSection(props) {
           <div>티케팅 현황 : </div>
           <div>유형 : </div>
           <div>장소 : </div>
+          <div>1인 최대 발행 매수 : </div>
           <div>이벤트 진행 : </div>
           <div>티켓팅 기간 : </div>
           <div>가격 </div>
@@ -64,6 +65,7 @@ export default function DeatilTicketingSection(props) {
           <div className="whitespace-nowrap">{event.event.TICKETING_IS_OPEN ? '종료' : '진행 중'}</div>
           <div className="whitespace-nowrap">{event.event.TAG}</div>
           <div className="whitespace-nowrap">{event.event.SITE}</div>
+          <div className="whitespace-nowrap">{event.event.TICKETING_LIMIT}</div>
           <div className="whitespace-nowrap">
             {formatDate(event.event.EVENT_START)} ~ {formatDate(event.event.EVENT_END)}
           </div>

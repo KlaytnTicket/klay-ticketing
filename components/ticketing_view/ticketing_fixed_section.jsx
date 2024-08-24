@@ -78,7 +78,7 @@ export default function FixedTicketingSection(props) {
     if(user !== null && choose !== 0){
       router.push({
         pathname: '/reservation',
-        query: {ticket_time: choose, event_pk: id},
+        query: {ticket_time: choose, event_pk: id, ticket_limit: event.event.TICKETING_LIMIT},
       });
      }
   }
