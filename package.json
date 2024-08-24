@@ -1,6 +1,6 @@
 {
   "name": "klay-ticketing",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,12 +11,22 @@
     "lintfix": "eslint --fix --ext .js,.jsx ."
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.45.1",
+    "@tosspayments/tosspayments-sdk": "^2.2.4",
+    "axios": "^1.7.3",
     "caver-js": "^1.6.0",
     "clsx": "^2.1.1",
+    "js-sha256": "^0.11.0",
+    "klip-sdk": "^2.2.1",
     "next": "14.2.4",
+    "pg": "^8.12.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-hook-form": "^7.52.1"
+    "react-hook-form": "^7.52.1",
+    "react-slick": "^0.30.2",
+    "sharp": "^0.33.5",
+    "slick-carousel": "^1.8.1",
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",

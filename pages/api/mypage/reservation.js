@@ -1,8 +1,12 @@
+import { executeQuery } from '@lib/postgres';
+
 async function GET(req, res) {
+  const { user_id } = req.query;
   try {
-    return res.status(200).json({ message: 'caver' });
+    const r = await executeQuery(`SELECT * FROM "TICKET" AS t JOIN "EVENT" AS e ON t."ID" = e."ID" WHERE "USER_ID" = '${user_id}'`);
+    return res.status(200).json({ r });
   } catch (error) {
-    return res.status(500).json({ o: false, message: error.message });
+    return res.status(500).json({ error });
   }
 }
 
