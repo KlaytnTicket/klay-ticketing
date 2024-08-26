@@ -12,7 +12,7 @@ export default function Home() {
   const [error, setError] = useState(null); // 에러 상태 추가
   const router = useRouter(); // next.js 라우터
 
-  const { ticket_time, event_pk, ticket_limit } = router.query; // 이벤트 pk랑 시간대, 티켓팅 최댓값 받아오는 거 ==> 티켓정보 불러오기
+  const { event_pk } = router.query; // 이벤트 pk
   const [user, setUser] = useState(null);
 
   // User 아이디 불러오기
@@ -25,19 +25,13 @@ export default function Home() {
     const fetchTicketData = async () => {
       try {
         const res = await axios.get('/api/tickets/ticketInfo', {
-          params: { floor, event_pk, ticket_time },
+          params: { floor, event_pk },
           headers: {
             'Cache-Control': 'no-cache', // 캐시 무시
           },
         });
 
-        // Array destructuring 사용
-        const { TICKET_DATE, ...restTicketInfo } = res.data.ticketInfo[0];
-        const date = new Date(TICKET_DATE);
-        const formattedDate = date.toISOString().split('T')[0];
-        const ticketinfo = { TICKET_DATE: formattedDate, ...restTicketInfo };
-
-        setTicketInfo(ticketinfo);
+        setTicketInfo(res.data.ticketInfo[0]);
         setTickets(res.data.tickets[0]);
       } catch (errors) {
         setError('데이터를 불러오지 못했습니다');
@@ -64,7 +58,7 @@ export default function Home() {
 
     fetchTicketData();
     fetchUserPoint();
-  }, [floor, ticket_time, event_pk]);
+  }, [floor, event_pk]);
 
   useEffect(() => {
     if (selectedSeats) {
@@ -169,11 +163,11 @@ export default function Home() {
 
       {/* 티켓 정보 섹션 */}
       <div className="mb-4 flex justify-between bg-gray-200 p-4">
-        <div className="text-3xl font-extrabold">{ticketInfo.NFT_NAME}</div>
+        <div className="text-3xl font-extrabold">{ticketInfo.NAME}</div>
         <div className="text-right text-sm">
-          <div>{ticketInfo.TICKET_DATE}</div>
-          <div>{ticketInfo.TICKET_TIME}</div>
-          <div>{ticketInfo.PLACE}</div>
+          <div>{ticketInfo.EVENT_START}</div>
+          <div>{ticketInfo.EVENT_END}</div>
+          <div>{ticketInfo.SITE}</div>
         </div>
       </div>
 

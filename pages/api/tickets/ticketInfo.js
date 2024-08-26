@@ -1,13 +1,13 @@
 import { executeQuery } from '@lib/postgres';
 
 async function GET(req, res) {
-  const { floor, event_pk, ticket_time } = req.query;
+  const { floor, event_pk } = req.query;
 
   try {
     const ticketInfoRows = [];
-    if (event_pk && ticket_time) {
+    if (event_pk) {
       const result = await executeQuery(
-        `SELECT "NFT_NAME", "TICKET_DATE", "TICKET_TIME", "PLACE" FROM "TICKET" WHERE "EVENT_ID" = '${String(event_pk)}' AND "TICKET_TIME" = '${String(ticket_time)}'`,
+        `SELECT * FROM "EVENT" WHERE "ID" = '${String(event_pk)}'`,
       );
       ticketInfoRows.push(result);
     }
