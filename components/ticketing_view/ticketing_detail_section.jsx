@@ -51,7 +51,7 @@ export default function DeatilTicketingSection(props) {
       </div>
       <div className="flex">
         {/* 이미지 불러오는 기능 알아봐야하. */}
-        <Image src={testImage} alt="이미지" width={320} height={240} className="w-80" />
+        <Image src={event.event.TICKET_IMAGE} alt="이미지" width={320} height={240} className="w-80" />
         <div className="flex flex-col space-y-3 px-10 text-lg font-extrabold">
           <div>티케팅 현황 : </div>
           <div>유형 : </div>
