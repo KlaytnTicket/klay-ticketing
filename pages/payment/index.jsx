@@ -16,7 +16,7 @@ export default function PaymentCheckoutPage() {
   const [payment, setPayment] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('CARD');
 
-  const [point, setPoint] = useState(10); // 기본값을 1로 설정
+  const [point, setPoint] = useState(10); // 기본값을 10로 설정
 
   function selectPaymentMethod(method) {
     setSelectedPaymentMethod(method);
@@ -42,7 +42,7 @@ export default function PaymentCheckoutPage() {
     }
 
     fetchPayment();
-  });
+  }, []);
 
   // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
   async function requestPayment() {

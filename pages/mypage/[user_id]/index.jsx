@@ -49,6 +49,13 @@ export default function MyPage(props) {
             </li>
           </ul>
         </div>
+        <div className="p-4">
+          <ul>
+            <li className="my-2">
+              <Link href={'/payment'}>포인트 충전</Link>
+            </li>
+          </ul>
+        </div>
         <div className="mr-60 p-4">
           <ul>
             <li className="my-2">
