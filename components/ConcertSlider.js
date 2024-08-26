@@ -9,7 +9,11 @@ export default function ConcertSlider() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await axios.get('/api/events/events');
+        const res = await axios.get('/api/events/events', {
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
         setEvents(res.data);
       } catch (error) {
         // console.log('이벤트 목록 패치 에러: ', error);
@@ -26,6 +30,10 @@ export default function ConcertSlider() {
     slidesToScroll: 1, // 스크롤 시 이동할 슬라이드 수
     arrows: true, // 좌우 버튼
   };
+
+  if (events === null) {
+    return (<div>목록이 없습니다.</div>);
+  }
 
   return (
     <div>
