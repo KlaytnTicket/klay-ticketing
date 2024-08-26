@@ -5,16 +5,9 @@ export default function FixedTicketingSection(props) {
   const { event, id } = props;
   const router = useRouter();
 
-  const [remainingTime, setRemainingTime] = useState(getRemainingTime(event.event.TICKETING_END));
+  const [remainingTime, setRemainingTime] = useState();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingTime(getRemainingTime(event.event.TICKETING_END));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [event.event.TICKETING_END]);
-
-  //날짜 , 시간 YYYY-MM-DD , TT-MM 으로 변환하는 로직
+  // 날짜 , 시간 YYYY-MM-DD , TT-MM 으로 변환하는 로직
   function formatDate(eventDate) {
     const date = new Date(eventDate);
     return date.toISOString().split('T')[0];
@@ -24,8 +17,8 @@ export default function FixedTicketingSection(props) {
     const date = new Date(eventDate);
     return date.toISOString().split('T')[1].slice(0, 5);
   }
-  //-----------------------------------------------
-  //티케팅 남은 시간 보여주는 로직
+  // -----------------------------------------------
+  // 티케팅 남은 시간 보여주는 로직
   function getRemainingTime(ticketEnd) {
     const now = new Date();
     const endTime = new Date(ticketEnd);
@@ -37,31 +30,31 @@ export default function FixedTicketingSection(props) {
     const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-    //-----------------------------------------------
+    // -----------------------------------------------
     // 조건에 따른 출력 형식
     if (hours > 0) {
       return `${hours}시 ${minutes}분 ${seconds}초 `;
-    } else if (minutes > 0) {
+    } if (minutes > 0) {
       return `${minutes}분 ${seconds}초`;
-    } else {
-      return `${seconds}초`;
     }
+    return `${seconds}초`;
   }
-  //-----------------------------------------------
+  // -----------------------------------------------
   // 티켓 UserId가 null인 것 인식하여 남는 자리 확인하는 로직
   function countNullUserIdTickets(tickets) {
     return tickets.filter((ticket) => ticket.USER_ID === null).length;
   }
 
   const nullUserTicketsCount = countNullUserIdTickets(event.tickets);
-  //-----------------------------------------------
+  // -----------------------------------------------
   // 로그인 여부 확인
   const [user, setUser] = useState(null);
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     setUser(storedUser);
   }, []);
-  //-----------------------------------------------
+
+  // -----------------------------------------------
   // 예매하기 눌러서 티켓 구매 페이지 넘어가기 전 로그인 확인 기능
   function checkUser() {
     if (user === null) {
@@ -76,7 +69,15 @@ export default function FixedTicketingSection(props) {
       });
     }
   }
-  //-----------------------------------------------
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemainingTime(getRemainingTime(event.event.TICKETING_END));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [event.event.TICKETING_END]);
+
+  // -----------------------------------------------
   return (
     <>
       <div className="fixed right-32 top-40 flex h-[450px] w-[280px] flex-col rounded-2xl bg-[#4579FF] px-7 py-5 font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)]">
@@ -95,13 +96,13 @@ export default function FixedTicketingSection(props) {
 
         <div className="pt-1">
           <div className="flex items-center justify-between space-x-3 pt-5">
-            <div className={`relative flex h-14 w-full select-none items-center justify-center rounded-3xl bg-[#383838] text-[#FFFFFF] shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)]`}>
+            <div className="relative flex h-14 w-full select-none items-center justify-center rounded-3xl bg-[#383838] text-[#FFFFFF] shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)]">
               <div className="absolute left-[30px] top-1 text-[10px]">잔여좌석</div>
               <div>{nullUserTicketsCount}석</div>
             </div>
           </div>
           <div className="flex items-center justify-between space-x-3 pt-5">
-            <div className={`relative flex h-14 w-full select-none items-center justify-center rounded-3xl bg-[#FFBE57] text-[#2C2C2C] shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)]`}>
+            <div className="relative flex h-14 w-full select-none items-center justify-center rounded-3xl bg-[#FFBE57] text-[#2C2C2C] shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)]">
               <div className="absolute left-[30px] top-1 text-[10px] font-extrabold">남은 시간</div>
               <div>{remainingTime}</div>
             </div>
