@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 export default function Home() {
   const [tickets, setTickets] = useState([]); // 층 수에 따른 전체 티켓정보
   const [ticketInfo, setTicketInfo] = useState({}); // 티켓 이벤트 정보 가져오기
-  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [selectedSeats, setSelectedSeats] = useState(null);
   const [userPoint, setUserPoint] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [floor, setFloor] = useState(1);
@@ -32,13 +32,13 @@ export default function Home() {
         });
 
         // Array destructuring 사용
-        const { TICKET_DATE, ...restTicketInfo } = res.data.ticketInfo;
+        const { TICKET_DATE, ...restTicketInfo } = res.data.ticketInfo[0];
         const date = new Date(TICKET_DATE);
         const formattedDate = date.toISOString().split('T')[0];
         const ticketinfo = { TICKET_DATE: formattedDate, ...restTicketInfo };
 
         setTicketInfo(ticketinfo);
-        setTickets(res.data.tickets);
+        setTickets(res.data.tickets[0]);
       } catch (errors) {
         setError('데이터를 불러오지 못했습니다');
         setTickets([]);
@@ -67,8 +67,11 @@ export default function Home() {
   }, [floor, ticket_time, event_pk]);
 
   useEffect(() => {
-    const total = selectedSeats.reduce((sum, ticket) => sum + ticket.PRICE, 0);
-    setTotalPrice(total);
+    if (selectedSeats) {
+      setTotalPrice(selectedSeats.PRICE);
+    } else {
+      setTotalPrice(0);
+    }
   }, [selectedSeats]);
 
   const handleSeatSelect = (ticket) => {
@@ -77,51 +80,21 @@ export default function Home() {
       return;
     }
 
-    let newSelectedSeats = [...selectedSeats];
-
-    if (selectedSeats.includes(ticket)) {
-      // 이미 고른 자리를 클릭하면 선택 풀림
-      newSelectedSeats = selectedSeats.filter((seat) => seat !== ticket);
+    // 이미 선택된 좌석이 있을 경우 새로운 좌석으로 교체
+    if (selectedSeats === ticket) {
+      // 이미 선택된 좌석을 다시 선택하면 선택을 해제
+      setSelectedSeats(null);
+      setTotalPrice(0);
     } else {
-      const row = ticket.SEAT_ROW;
+      // 새 좌석을 선택할 때 기존 선택 좌석을 교체
+      const newTotalPrice = ticket.PRICE;
 
-      if (selectedSeats.length === 0) {
-        newSelectedSeats = [ticket];
-      } else if (selectedSeats.length === 1) {
-        const [firstSeat] = selectedSeats;
-        const minColumn = Math.min(firstSeat.SEAT_COLUMN, ticket.SEAT_COLUMN);
-        const maxColumn = Math.max(firstSeat.SEAT_COLUMN, ticket.SEAT_COLUMN);
-
-        // 첫 번째 좌석과 새로 선택된 좌석 사이의 모든 좌석을 가져옴
-        const middleSeats = tickets.filter((seat) => seat.SEAT_ROW === row && seat.SEAT_COLUMN > minColumn && seat.SEAT_COLUMN < maxColumn && !seat.IS_USED);
-
-        // 중간 좌석들을 선택한 좌석 리스트에 추가
-        newSelectedSeats = [firstSeat, ...middleSeats, ticket];
-      } else if (selectedSeats.length === 2) {
-        const [firstSeat, secondSeat] = selectedSeats;
-        if (Math.abs(firstSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1 || Math.abs(secondSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1) {
-          // 고른 자리가 기존 자리랑 붙어 있으면
-          newSelectedSeats = [...selectedSeats, ticket];
-        } else {
-          newSelectedSeats = [ticket];
-        }
+      if (newTotalPrice > userPoint) {
+        alert('포인트가 부족합니다.');
       } else {
-        newSelectedSeats = [ticket];
+        setSelectedSeats(ticket);
+        setTotalPrice(newTotalPrice);
       }
-    }
-
-    // 선택된 좌석 수가 ticket_limit을 초과하면, 마지막에 선택한 좌석만 남기고 초기화
-    if (newSelectedSeats.length > ticket_limit) {
-      newSelectedSeats = [ticket];
-    }
-
-    // 새로 고른 좌석들 총 포인트 계산
-    const newTotalPrice = newSelectedSeats.reduce((sum, seat) => sum + seat.PRICE, 0);
-
-    if (newTotalPrice > userPoint) {
-      alert('포인트가 부족합니다.');
-    } else {
-      setSelectedSeats(newSelectedSeats);
     }
   };
 
@@ -161,9 +134,9 @@ export default function Home() {
     } else {
       try {
         const { userID } = user;
-        const ticketIDs = selectedSeats.map((seat) => seat.ID);
+        const ticketID = selectedSeats.ID;
 
-        const requestData = { userID, totalPrice, ticketIDs };
+        const requestData = { userID, totalPrice, ticketID };
 
         const res = await axios.post('/api/tickets/ticketbuy', requestData);
 
@@ -172,7 +145,7 @@ export default function Home() {
         }
 
         alert('결제 성공');
-        setSelectedSeats([]); // 선택 좌석 초기화
+        setSelectedSeats(null); // 선택 좌석 초기화
         router.reload();
         // router.push('/payment');
       } catch (errors) {
@@ -181,11 +154,6 @@ export default function Home() {
       }
     }
   };
-  // console.log(tickets);
-  // console.log(selectedSeats);
-  // if(selectedSeats !== null){
-  //   console.log(selectedSeats[0]);
-  // }
 
   const handleGoBack = () => {
     // 이전 페이지로 이동
@@ -229,9 +197,8 @@ export default function Home() {
         {tickets.map((ticket) => (
           <div
             key={ticket.ID}
-            className={`col-span-1 cursor-pointer border p-2 ${selectedSeats.includes(ticket) ? 'border-4 border-black' : ''} ${
-              ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)
-            }`}
+            className={`col-span-1 cursor-pointer border p-2 ${selectedSeats && selectedSeats.ID === ticket.ID ? 'border-4 border-black' : ''} 
+            ${ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)}`}
             onClick={() => handleSeatSelect(ticket)}
           >
             {ticket.SEAT_ROW}-{ticket.SEAT_COLUMN}
@@ -250,14 +217,14 @@ export default function Home() {
         <div className="w-1/2">
           <h2 className="mb-2 text-xl font-bold">고른 좌석</h2>
           <div className="border-b-2 border-t-2 border-black">
-            {selectedSeats.map((ticket, index) => (
-              <div key={ticket.ID} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
+            {selectedSeats && (
+              <div className="border-b p-2 mb-4">
                 <div className="flex">
                   <div className="flex w-1/3 items-center justify-center bg-gray-200 p-2">
                     <div className="font-bold">좌석층수</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
-                    <div>{ticket.SEAT_FLOOR}층</div>
+                    <div>{selectedSeats.SEAT_FLOOR}층</div>
                   </div>
                 </div>
                 <div className="mt-2 border-t border-gray-300" /> {/* 구분선 추가 및 마진 적용 */}
@@ -266,7 +233,7 @@ export default function Home() {
                     <div className="font-bold">좌석등급</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
-                    <div>{ticket.SEAT_GRADE}</div>
+                    <div>{selectedSeats.SEAT_GRADE}</div>
                   </div>
                 </div>
                 <div className="mt-2 border-t border-gray-300" /> {/* 구분선 추가 및 마진 적용 */}
@@ -276,12 +243,12 @@ export default function Home() {
                   </div>
                   <div className="flex w-2/3 items-center p-2">
                     <div>
-                      {ticket.SEAT_ROW}-{ticket.SEAT_COLUMN}
+                      {selectedSeats.SEAT_ROW}-{selectedSeats.SEAT_COLUMN}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
