@@ -7,12 +7,13 @@ export default function Home() {
   const [ticketInfo, setTicketInfo] = useState({}); // 티켓 이벤트 정보 가져오기
   const [selectedSeats, setSelectedSeats] = useState(null);
   const [userPoint, setUserPoint] = useState(0);
+  const [userWallet, setUserWallet] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
   const [floor, setFloor] = useState(1);
   const [error, setError] = useState(null); // 에러 상태 추가
   const router = useRouter(); // next.js 라우터
 
-  const { event_pk, ticket_limit } = router.query; // 이벤트 pk랑 티켓팅 최댓값 받아오는 거 ==> 티켓정보 불러오기
+  const { event_pk } = router.query; // 이벤트 pk랑 티켓팅 최댓값 받아오는 거 ==> 티켓정보 불러오기
   const [user, setUser] = useState(null);
 
   // User 아이디 불러오기
@@ -65,6 +66,7 @@ export default function Home() {
           },
         });
 
+        setUserWallet(res.data.USER_WALLET);
         setUserPoint(res.data.USER_POINT);
       } catch (errors) {
         setError('데이터를 불러오지 못했습니다'); // 에러 메시지 설정
@@ -118,16 +120,16 @@ export default function Home() {
   // 좌석 별 색깔
   const getSeatColor = (grade) => {
     switch (grade) {
-      case 'S':
-        return 'bg-red-500';
-      case 'A':
-        return 'bg-purple-500';
-      case 'B':
-        return 'bg-yellow-500';
-      case 'C':
-        return 'bg-green-500';
-      default:
-        return 'bg-gray-200';
+    case 'S':
+      return 'bg-red-500';
+    case 'A':
+      return 'bg-purple-500';
+    case 'B':
+      return 'bg-yellow-500';
+    case 'C':
+      return 'bg-green-500';
+    default:
+      return 'bg-gray-200';
     }
   };
 
@@ -138,6 +140,7 @@ export default function Home() {
   const remainingBSeats = tickets.filter((ticket) => !ticket.IS_USED && ticket.SEAT_GRADE === 'B').length;
   const remainingCSeats = tickets.filter((ticket) => !ticket.IS_USED && ticket.SEAT_GRADE === 'C').length;
 
+  const cA = ticketInfo?.CONTRACT_ADDRESS;
   const handleCompleteSelection = async () => {
     if (totalPrice === 0) {
       alert('좌석 선택해라.');
@@ -146,12 +149,20 @@ export default function Home() {
         const { userID } = user;
         const ticketID = selectedSeats.ID;
 
+        // 포인트 처리 관련 API
         const requestData = { userID, totalPrice, ticketID };
-
         const res = await axios.post('/api/tickets/ticketbuy', requestData);
 
         if (res.status !== 200) {
           throw new Error('결제 처리 오류');
+        }
+
+        // Minting 및 토큰 ID 배당
+        const MintingData = { cA, userWallet, ticketID };
+        const response = await axios.post('/api/tickets/minting', MintingData);
+
+        if (response.status !== 200) {
+          throw new Error('민팅 오류');
         }
 
         alert('결제 성공');
@@ -200,7 +211,8 @@ export default function Home() {
         {tickets.map((ticket) => (
           <div
             key={ticket.ID}
-            className={`col-span-1 cursor-pointer border p-2 ${selectedSeats && selectedSeats.ID === ticket.ID ? 'border-4 border-black' : ''} ${ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)}`}
+            className={`col-span-1 cursor-pointer border p-2 
+              ${selectedSeats && selectedSeats.ID === ticket.ID ? 'border-4 border-black' : ''} ${ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)}`}
             onClick={() => handleSeatSelect(ticket)}
           >
             {ticket.SEAT_ROW}-{ticket.SEAT_COLUMN}

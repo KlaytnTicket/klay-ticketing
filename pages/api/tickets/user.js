@@ -6,7 +6,7 @@ async function GET(req, res) {
   try {
     const result = [];
     if (userID) {
-      const r = await executeQuery(`SELECT "USER_POINT" FROM "USER" WHERE "USER_ID" = '${userID}'`);
+      const r = await executeQuery(`SELECT "USER_POINT", "USER_WALLET" FROM "USER" WHERE "USER_ID" = '${userID}'`);
       result.push(r[0]);
     }
 

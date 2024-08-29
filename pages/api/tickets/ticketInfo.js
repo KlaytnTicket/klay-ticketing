@@ -29,11 +29,11 @@ export default async function handler(req, res) {
   const { method } = req;
 
   switch (method) {
-    case 'GET':
-      return GET(req, res);
-    default:
-      return res.status(405).json({
-        message: 'Not Support Method',
-      });
+  case 'GET':
+    return GET(req, res);
+  default:
+    return res.status(405).json({
+      message: 'Not Support Method',
+    });
   }
 }

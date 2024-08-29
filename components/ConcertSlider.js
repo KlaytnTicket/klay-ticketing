@@ -45,7 +45,7 @@ export default function ConcertSlider() {
             </Link>
             <p>티켓팅 시작: {new Date(event.TICKETING_START).toLocaleString()}</p>
             <p>종료일: {new Date(event.TICKETING_END).toLocaleString()}</p>
-            <p>상태: {event.TICKETING_IS_OPEN ? '종료' : '진행 중'}</p>
+            <p>상태: {event.TICKETING_IS_OPEN ? '진행 중' : '종료'}</p>
           </div>
         ))}
       </Slider>
