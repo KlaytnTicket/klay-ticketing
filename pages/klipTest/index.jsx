@@ -3,19 +3,12 @@ import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [qrValue, setQrvalue] = useState('');
-  const [address, setAddress] = useState('');
   const [requestKey, setRequestKey] = useState('');
-  const [nfts, setNfts] = useState([]);
-  const [getCardList, setGetCardList] = useState(null);
 
-  // 클라이언트사이드에서 동적으로 getCardList 함수 로드  (window 어쩌구 오류 해결)
-  useEffect(() => {
-    const loadGetCardList = async () => {
-      const { getCardList: getCards } = await import('klip-sdk');
-      setGetCardList(() => getCards);
-    };
-    loadGetCardList();
-  }, []);
+  const [events, setEvents] = useState([]); // 이벤트 선택
+  const [cA, setCA] = useState('');
+  const [address, setAddress] = useState('');
+  const [tokenResult, setTokenResult] = useState(null); // 통과 여부
 
   // Klip API로 QR 코드 요청
   const requestKlip = async () => {
@@ -51,28 +44,32 @@ export default function Home() {
     }
   };
 
-  // getcardlist 이용해서 가지고있는 nft 검색하는 기능 contract 주소에 대해서는 질문 예정
-  const fetchNfts = async () => {
-    if (!getCardList) {
-      // console.error('getCardList 함수가 로드되지 않았습니다.');
-      return;
-    }
-
-    try {
-      const response = await getCardList({
-        contract: '0xb26e09db6656b998d2913f13870e06c151c37900',
-        eoa: address,
-        cursor: '',
+  // 이벤트 가져오기
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const res = await axios.get('/api/events/events', {
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
       });
+      setEvents(res.data);
+    };
 
-      if (response && response.cards) {
-        setNfts(response.cards);
-        // console.log(nfts);
+    fetchEvents();
+  }, []);
+
+  // 토큰 조회
+  const searchToken = async () => {
+    try {
+      const res = await axios.post('/api/caver/nftsearch', { cA, address });
+
+      if (res.data.hasToken) {
+        setTokenResult('티켓 통과.');
       } else {
-        // console.error('No NFTs found.');
+        setTokenResult('토큰 없다.');
       }
     } catch (error) {
-      // console.error('Error fetching NFTs:', error);
+      setTokenResult('오류 발생');
     }
   };
 
@@ -88,21 +85,29 @@ export default function Home() {
           {/* <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrValue}`} /> */}
         </div>
       )}
+
+      <br />
+      <div>
+        <label>
+          이벤트 선택 :
+          <select value={cA} onChange={(e) => setCA(e.target.value)}>
+            <option value="">EVENT 목록</option>
+            {events.map((event) => (
+              <option key={event.ID} value={event.CONTRACT_ADDRESS}>
+                {event.NAME}
+              </option>
+            ))}
+          </select>
+        </label><br />
+        선택된 컨트랙트 주소 : {cA}
+      </div><br />
+
       <button onClick={getResult}>지갑 주소 확인</button>
       {address && (
         <div>
           <p>지갑 주소: {address}</p>
-          <button onClick={fetchNfts}>NFT 목록 조회</button>
-          {nfts.length > 0 && (
-            <div>
-              <h2>NFTs</h2>
-              <ul>
-                {nfts.map((nft, index) => (
-                  <li key={index}>{nft.card_id}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <button onClick={searchToken}>NFT 토큰 조회</button>
+          {tokenResult && <p>결과: {tokenResult}</p>}
         </div>
       )}
     </div>
