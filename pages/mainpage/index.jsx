@@ -9,14 +9,12 @@ export default function Home() {
       </Head>
 
       {/* 콘서트목록 들어올 장소  */}
-      <div className="bg-slate-200">
-        <main className="mx-auto mt-20 w-4/5 justify-center">
+      <div className='min-h-screen'>
+        <main className="mx-auto mt-32 w-4/5 justify-center">
           <div>
-            <h1 className="text-center font-bold">콘서트 목록</h1>
+            <h1 className="text-center text-2xl font-bold">콘서트 목록</h1>
             {/* 목록 받기 */}
-            <div className="mt-4 border-y-2 border-slate-500 py-8">
-              <ConcertSlider />
-            </div>
+            <ConcertSlider />
           </div>
         </main>
       </div>
