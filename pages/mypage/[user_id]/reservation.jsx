@@ -29,6 +29,7 @@ export default function MyPageReservation(props) {
               <th>가격</th>
               <th>티켓등급</th>
               <th>공연일</th>
+              <th>토큰 ID</th>
               <th>사용여부</th>
             </tr>
           </thead>
@@ -40,6 +41,7 @@ export default function MyPageReservation(props) {
                 <td>{i.PRICE.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원</td>
                 <td>{i.SEAT_GRADE}</td>
                 <td>{d[k]}</td>
+                <td>{i.TOKEN_ID}</td>
                 <td>{i.IS_USED ? '사용 가능' : '사용 불가능'}</td>
               </tr>
             ))}
