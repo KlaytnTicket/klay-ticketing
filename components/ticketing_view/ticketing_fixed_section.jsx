@@ -34,7 +34,8 @@ export default function FixedTicketingSection(props) {
     // 조건에 따른 출력 형식
     if (hours > 0) {
       return `${hours}시 ${minutes}분 ${seconds}초 `;
-    } if (minutes > 0) {
+    }
+    if (minutes > 0) {
       return `${minutes}분 ${seconds}초`;
     }
     return `${seconds}초`;
@@ -62,7 +63,7 @@ export default function FixedTicketingSection(props) {
       return;
     }
 
-    if (user !== null) {
+    if (user !== null && event.event.TICKETING_IS_OPEN) {
       router.push({
         pathname: '/reservation',
         query: { event_pk: id },
@@ -111,7 +112,7 @@ export default function FixedTicketingSection(props) {
       </div>
       <div
         onClick={checkUser}
-        className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] items-center justify-center rounded-xl ${event.event.TICKETING_IS_OPEN ? 'bg-[#4579FF]' : 'bg-[#383838]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
+        className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] cursor-pointer items-center justify-center rounded-xl ${event.event.TICKETING_IS_OPEN ? 'bg-[#4579FF]' : 'bg-[#383838]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
       >
         <div>{event.event.TICKETING_IS_OPEN ? '예매하기' : '종료된 이벤트입니다.'}</div>
       </div>
