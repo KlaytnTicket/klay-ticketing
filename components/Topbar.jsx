@@ -3,16 +3,15 @@ import Link from 'node_modules/next/link';
 import { useRouter } from 'node_modules/next/router';
 import React, { useEffect, useState } from 'react';
 
-import icon from '../image/icon1.png';
-
 import ButtonA from './ButtonA';
+import icon from '../image/icon1.png';
 import LOGO from '../image/logo.png';
 
 export default function Topbar() {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
-  //top bar 이벤트 설정 페이지로 이동 하기 위한 변수
+  // top bar 이벤트 설정 페이지로 이동 하기 위한 변수
   const [Admin, setAdmin] = useState('');
 
   useEffect(() => {
