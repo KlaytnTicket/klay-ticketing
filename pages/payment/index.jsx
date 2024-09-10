@@ -1,4 +1,4 @@
-import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
+import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
 
 // ------  SDK 초기화 ------
@@ -91,30 +91,30 @@ export default function PaymentCheckoutPage() {
     <div className="wrapper ml-4 mt-4">
       <div className="box_section">
         <h1 className="font-bold">일반 결제</h1>
-        <input type="number" value={point} onChange={(e) => setPoint(Number(e.target.value))} className="rounded-md border-2 border-slate-300 py-2 pl-2 mt-2 mr-4" /> 포인트
-        <p className="mt-2 text-xs italic font-bold ml-2">1포인트에 1원 입니다.</p>
+        <input type="number" value={point} onChange={(e) => setPoint(Number(e.target.value))} className="mr-4 mt-2 rounded-md border-2 border-slate-300 py-2 pl-2" /> 포인트
+        <p className="ml-2 mt-2 text-xs font-bold italic">1포인트에 1원 입니다.</p>
         <br />
-
         <div id="payment-method" style={{ display: 'flex' }}>
           <p className="mr-2">결제 수단: </p>
-          <button id="CARD" className={`button2 ${selectedPaymentMethod === 'CARD' ? 'active' : ''} 
-            border-2 rounded-md border-black px-2`} onClick={() => selectPaymentMethod('CARD')}>
+          <button
+            id="CARD"
+            className={`button2 ${selectedPaymentMethod === 'CARD' ? 'active' : ''} rounded-md border-2 border-black px-2`}
+            onClick={() => selectPaymentMethod('CARD')}
+          >
             카드
           </button>{' '}
           <br />
         </div>{' '}
         <br />
-
-        <button className="button border-2 rounded-lg bg-blue-400 py-2 px-4 hover:bg-blue-700" onClick={() => requestPayment()}>
+        <button className="button rounded-lg border-2 bg-blue-400 px-4 py-2 hover:bg-blue-700" onClick={() => requestPayment()}>
           결제하기
         </button>
-      </div> <br />
-
-      <div className="bg-black w-20 h-[1px]"></div>
-
+      </div>{' '}
+      <br />
+      <div className="h-[1px] w-20 bg-black"></div>
       <div className="box_section mt-4">
         <h1 className="font-bold">정기 결제</h1>
-        <button className="button mt-4 border-2 rounded-lg bg-blue-400 p-2 hover:bg-blue-700" onClick={() => requestBillingAuth()}>
+        <button className="button mt-4 rounded-lg border-2 bg-blue-400 p-2 hover:bg-blue-700" onClick={() => requestBillingAuth()}>
           빌링키 발급
         </button>
       </div>

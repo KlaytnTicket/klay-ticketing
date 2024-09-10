@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -63,7 +64,7 @@ export default function ConcertSlider() {
             {events.map((event) => (
               <div key={event.ID} className="flex w-1/3 shrink-0 flex-col items-center rounded-lg bg-white p-4 px-4">
                 <Link href={`/ticketing_view/${event.ID}`}>
-                  <img src={event.TICKET_IMAGE} className="border- h-80 w-60 rounded-lg border-[#4579FF] object-cover shadow-md" />
+                  <Image src={event.TICKET_IMAGE} alt="슬라이더 이미지" width={700} height={700} className="h-80 w-60 rounded-lg border-[#4579FF] object-cover shadow-md" />
                   <h2 className="ml-2 mt-2 text-start text-2xl font-extrabold">{event.NAME}</h2>
                 </Link>
                 <div className="text-start">

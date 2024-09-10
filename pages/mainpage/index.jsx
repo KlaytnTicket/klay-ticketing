@@ -1,6 +1,7 @@
 import ConcertSlider from 'components/ConcertSlider';
 import Head from 'next/head';
 import Image from 'next/image';
+
 import reviewIMG from '../../image/reviewIMG.png';
 
 export default function Home() {
@@ -18,7 +19,7 @@ export default function Home() {
             {/* 목록 받기 */}
             <ConcertSlider />
             <div className="flex justify-center">
-              <Image src={reviewIMG} className="" />
+              <Image src={reviewIMG} alt="리뷰이미지" priority />
             </div>
           </div>
         </main>

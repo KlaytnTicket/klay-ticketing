@@ -45,6 +45,7 @@ export default function PaymentSuccessPage() {
       // 결제 성공 시 DB 업데이트 API 호출
       updatePaymentInDB(paymentKey, orderId, amount, customerKey);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query]);
 
   return (

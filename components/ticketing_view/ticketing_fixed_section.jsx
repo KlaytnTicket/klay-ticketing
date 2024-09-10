@@ -76,12 +76,16 @@ export default function FixedTicketingSection(props) {
       setRemainingTime(getRemainingTime(event.event.TICKETING_END));
     }, 1000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event.event.TICKETING_END]);
 
   // -----------------------------------------------
   return (
     <>
-      <div className="fixed right-32 top-40 flex h-[450px] w-[280px] flex-col rounded-2xl bg-[#4579FF] px-7 py-5 font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)]">
+      <div
+        // eslint-disable-next-line max-len
+        className="fixed right-32 top-40 flex h-[450px] w-[280px] flex-col rounded-2xl bg-[#4579FF] px-7 py-5 font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)]"
+      >
         <div>예매 일</div>
         <div id="dateSection" className="flex justify-between space-x-3 pb-1 pt-5">
           <div className="select-none">{formatDate(event.event.TICKETING_START)}</div> <div>~</div>
@@ -112,6 +116,7 @@ export default function FixedTicketingSection(props) {
       </div>
       <div
         onClick={checkUser}
+        // eslint-disable-next-line max-len
         className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] cursor-pointer items-center justify-center rounded-xl ${event.event.TICKETING_IS_OPEN ? 'bg-[#4579FF]' : 'bg-[#383838]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
       >
         <div>{event.event.TICKETING_IS_OPEN ? '예매하기' : '종료된 이벤트입니다.'}</div>

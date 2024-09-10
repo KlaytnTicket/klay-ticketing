@@ -84,6 +84,7 @@ export default function ConfirmSetting() {
     };
 
     fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 이벤트 선택 시마다 NFT 조회
@@ -108,16 +109,13 @@ export default function ConfirmSetting() {
   };
 
   return (
-    <div className='min-h-screen p-4 flex flex-col items-center'>
-      <h1 className='text-2xl font-bold text-center mb-2'>Klip 확인</h1>
-      <p className='mb-4 italic font-light text-sm'>모바일에서 자동으로 토큰 확인이 진행됩니다.</p>
+    <div className="flex min-h-screen flex-col items-center p-4">
+      <h1 className="mb-2 text-center text-2xl font-bold">Klip 확인</h1>
+      <p className="mb-4 text-sm font-light italic">모바일에서 자동으로 토큰 확인이 진행됩니다.</p>
 
-      <div className='w-full max-w-xs mb-4'>
-        <label className='block text-gray-700 text-sm mb-2 font-bold'>이벤트 선택</label>
-        <select value={cA}
-          onChange={(e) => setCA(e.target.value)}
-          className='w-full bg-white border border-gray-300 rounded-lg p-1'
-        >
+      <div className="mb-4 w-full max-w-xs">
+        <label className="mb-2 block text-sm font-bold text-gray-700">이벤트 선택</label>
+        <select value={cA} onChange={(e) => setCA(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-white p-1">
           {events.map((event) => (
             <option key={event.ID} value={event.CONTRACT_ADDRESS}>
               {event.NAME}
@@ -131,9 +129,9 @@ export default function ConfirmSetting() {
       </div> */}
 
       {address && (
-        <div className={`w-full max-w-xs text-center p-4 rounded-lg ${getBgColor()}`}>
+        <div className={`w-full max-w-xs rounded-lg p-4 text-center ${getBgColor()}`}>
           {/* <p className='text-gray-700 mb-2'>지갑 주소: {address}</p> */}
-          {tokenResult && <p className='mt-4 text-gray-700'>결과: {tokenResult}</p>}
+          {tokenResult && <p className="mt-4 text-gray-700">결과: {tokenResult}</p>}
         </div>
       )}
     </div>

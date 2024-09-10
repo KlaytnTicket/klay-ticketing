@@ -1,8 +1,6 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
-import testImage from '../../image/이리.png';
-
 export default function DeatilTicketingSection(props) {
   const { event } = props;
 

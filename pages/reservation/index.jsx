@@ -211,8 +211,8 @@ export default function Home() {
         {tickets.map((ticket) => (
           <div
             key={ticket.ID}
-            className={`col-span-1 cursor-pointer border p-2 
-              ${selectedSeats && selectedSeats.ID === ticket.ID ? 'border-4 border-black' : ''} ${ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)}`}
+            // eslint-disable-next-line max-len
+            className={`col-span-1 cursor-pointer border p-2 ${selectedSeats && selectedSeats.ID === ticket.ID ? 'border-4 border-black' : ''} ${ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)}`}
             onClick={() => handleSeatSelect(ticket)}
           >
             {ticket.SEAT_ROW}-{ticket.SEAT_COLUMN}

@@ -1,9 +1,9 @@
 import Topbar from '@components/Topbar';
+import { useRouter } from 'next/router';
 import { SWRConfig } from 'swr';
 import '@styles/globals.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { useRouter } from 'node_modules/next/router';
 
 import Footer from '../components/Footer';
 

@@ -39,7 +39,7 @@ export default function Topbar() {
         </Link>
         <input value={Admin} onChange={(e) => setAdmin(e.target.value)} className="h-12 w-96 rounded-l-xl border pl-5" type="text" placeholder="찾으시는 이벤트를 검색해 보세요" />
         <button className="flex h-12 w-14 items-center justify-center rounded-r-xl bg-[#4579FF]" onClick={egg}>
-          <Image src={icon} />
+          <Image src={icon} alt="icon" />
         </button>
       </div>
       {!user ? (
