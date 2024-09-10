@@ -1,15 +1,17 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
-export default function Home() {
+export default function ConfirmSetting() {
   const [requestKey, setRequestKey] = useState('');
-
   const [events, setEvents] = useState([]); // 이벤트 선택
   const [cA, setCA] = useState('');
   const [address, setAddress] = useState('');
   const [tokenResult, setTokenResult] = useState(null); // 통과 여부
 
-  // Klip API 요청
+  // 모바일 접속 여부 확인
+  const isMobile = () => /Mobi|Android/i.test(navigator.userAgent);
+
+  // Klip API 요청 (자동 서명 요청)
   const requestKlip = async () => {
     try {
       const res = await axios.post('https://a2a-api.klipwallet.com/v2/a2a/prepare', {
@@ -28,12 +30,15 @@ export default function Home() {
       // 서명 체크 확인
       const checkResult = setInterval(async () => {
         try {
-          const response = await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${requestKey}`);
+          const response = await axios.get(`https://a2a-api.klipwallet.com/v2/a2a/result?request_key=${request_key}`);
 
           if (response.data.result) {
             clearInterval(checkResult); // 서명 완료 시 체크 중지
             const userAddress = response.data.result.klaytn_address;
             setAddress(userAddress);
+
+            // 주소를 받아온 후 자동으로 NFT 조회
+            searchToken(userAddress, cA);
           }
         } catch (err) {
           /* 에러 처리 */
@@ -42,7 +47,22 @@ export default function Home() {
 
       setTimeout(() => clearInterval(checkResult), 60000);
     } catch (error) {
-      /* blank */
+      /* 에러 처리 */
+    }
+  };
+
+  // 토큰 조회
+  const searchToken = async (userAddress, contractAddress) => {
+    try {
+      const res = await axios.post('/api/caver/nftsearch', { cA: contractAddress, address: userAddress });
+
+      if (res.data.hasToken) {
+        setTokenResult('티켓 통과.');
+      } else {
+        setTokenResult('토큰 없다.');
+      }
+    } catch (error) {
+      setTokenResult('오류 발생');
     }
   };
 
@@ -55,34 +75,42 @@ export default function Home() {
         },
       });
       setEvents(res.data);
+      setCA(res.data[0].CONTRACT_ADDRESS); // 이걸로 default 이벤트 설정
+
+      // 모바일 접속 시 자동으로 Klip 요청
+      if (isMobile()) {
+        requestKlip();
+      }
     };
 
     fetchEvents();
   }, []);
 
-  // 토큰 조회
-  const searchToken = async () => {
-    try {
-      const res = await axios.post('/api/caver/nftsearch', { cA, address });
+  // 이벤트 선택 시마다 NFT 조회
+  useEffect(() => {
+    if (address && cA) {
+      searchToken(address, cA);
+    }
+  }, [cA, address]);
 
-      if (res.data.hasToken) {
-        setTokenResult('티켓 통과.');
-      } else {
-        setTokenResult('토큰 없다.');
-      }
-    } catch (error) {
-      setTokenResult('오류 발생');
+  // 배경색 결정(가시성)
+  const getBgColor = () => {
+    switch (tokenResult) {
+    case '티켓 통과':
+      return 'bg-blue-200';
+    case '토큰 없다.':
+      return 'bg-red-200';
+    case '오류 발생':
+      return 'bg-gray-200';
+    default:
+      return 'bg-white';
     }
   };
 
   return (
     <div className='min-h-screen p-4 flex flex-col items-center'>
       <h1 className='text-2xl font-bold text-center mb-2'>Klip 확인</h1>
-      <p className='mb-4 italic font-light text-sm'>해당 버튼을 눌러주세요.</p>
-      <button onClick={requestKlip}
-        className='w-full max-w-xs bg-blue-400 text-white py-2 px-4 rounded-lg mb-4 hover:bg-blue-600 transition'>
-          Klip 지갑 조회
-      </button> <br /><br />
+      <p className='mb-4 italic font-light text-sm'>모바일에서 자동으로 토큰 확인이 진행됩니다.</p>
 
       <div className='w-full max-w-xs mb-4'>
         <label className='block text-gray-700 text-sm mb-2 font-bold'>이벤트 선택</label>
@@ -90,7 +118,6 @@ export default function Home() {
           onChange={(e) => setCA(e.target.value)}
           className='w-full bg-white border border-gray-300 rounded-lg p-1'
         >
-          <option value="">EVENT 목록</option>
           {events.map((event) => (
             <option key={event.ID} value={event.CONTRACT_ADDRESS}>
               {event.NAME}
@@ -99,18 +126,13 @@ export default function Home() {
         </select>
       </div>
 
-      <div className='w-full max-w-xs text-gray-700 mb-4'>
-        선택된 컨트랙트 주소: {cA || '선택되지 않음'}
-      </div> <br />
+      {/* <div className='w-full max-w-xs text-gray-700 mb-4'>
+        선택된 컨트랙트 주소: {cA}
+      </div> */}
 
       {address && (
-        <div className='w-full max-w-xs text-center'>
-          <p className='text-gray-700 mb-2'>지갑 주소: {address}</p>
-          <button onClick={searchToken}
-            className='w-full bg-blue-400 text-white py-2 px-4  rounded-lg hover:bg-blue-600 transition'
-          >
-            NFT 토큰 조회
-          </button>
+        <div className={`w-full max-w-xs text-center p-4 rounded-lg ${getBgColor()}`}>
+          {/* <p className='text-gray-700 mb-2'>지갑 주소: {address}</p> */}
           {tokenResult && <p className='mt-4 text-gray-700'>결과: {tokenResult}</p>}
         </div>
       )}
