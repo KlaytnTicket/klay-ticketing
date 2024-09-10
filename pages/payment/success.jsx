@@ -1,3 +1,4 @@
+import ButtonA from '@components/ButtonA';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -48,8 +49,9 @@ export default function PaymentSuccessPage() {
   }, [router.query]);
 
   return (
-    <div>
-      <h1>결제가 성공적으로 완료되었습니다!</h1>
+    <div className="ml-4 mt-4">
+      <h1 className="mb-4">결제가 성공적으로 완료됐습니다!</h1>
+      <ButtonA URL="mainpage" label={'메인 페이지로 이동'} width={200} />
     </div>
   );
 }

@@ -1,15 +1,13 @@
 import { executeQuery } from '@lib/postgres';
 
 async function GET(req, res) {
-  const { floor, event_pk, ticket_time } = req.query;
+  const { floor, event_pk } = req.query;
 
   try {
     const ticketInfoRows = [];
-    if (event_pk && ticket_time) {
-      const result = await executeQuery(
-        `SELECT "NFT_NAME", "TICKET_DATE", "TICKET_TIME", "PLACE" FROM "TICKET" WHERE "EVENT_ID" = '${String(event_pk)}' AND "TICKET_TIME" = '${String(ticket_time)}'`,
-      );
-      ticketInfoRows.push(result);
+    if (event_pk) {
+      const result = await executeQuery(`SELECT * FROM "EVENT" WHERE "ID" = '${String(event_pk)}'`);
+      ticketInfoRows.push(result[0]);
     }
 
     const ticketsRows = [];
@@ -20,7 +18,7 @@ async function GET(req, res) {
 
     return res.status(200).json({
       ticketInfo: ticketInfoRows[0],
-      tickets: ticketsRows,
+      tickets: ticketsRows.flat(),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Internal Server Error' });

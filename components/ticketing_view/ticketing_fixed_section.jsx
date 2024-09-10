@@ -5,64 +5,49 @@ export default function FixedTicketingSection(props) {
   const { event, id } = props;
   const router = useRouter();
 
-  const [choose, setChoose] = useState(0);
-  const today = new Date();
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [remainingTime, setRemainingTime] = useState();
 
-  function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  // 날짜 , 시간 YYYY-MM-DD , TT-MM 으로 변환하는 로직
+  function formatDate(eventDate) {
+    const date = new Date(eventDate);
+    return date.toISOString().split('T')[0];
   }
 
-  function changeDate(days) {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + days);
-    setSelectedDate(newDate);
+  function formatTime(eventDate) {
+    const date = new Date(eventDate);
+    return date.toISOString().split('T')[1].slice(0, 5);
+  }
+  // -----------------------------------------------
+  // 티케팅 남은 시간 보여주는 로직
+  function getRemainingTime(ticketEnd) {
+    const now = new Date();
+    const endTime = new Date(ticketEnd);
+    const timeDifference = endTime - now;
+
+    if (timeDifference <= 0 || !event.event.TICKETING_IS_OPEN) {
+      return '예매가 종료되었습니다.';
+    }
+    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+    // -----------------------------------------------
+    // 조건에 따른 출력 형식
+    if (hours > 0) {
+      return `${hours}시 ${minutes}분 ${seconds}초 `;
+    }
+    if (minutes > 0) {
+      return `${minutes}분 ${seconds}초`;
+    }
+    return `${seconds}초`;
+  }
+  // -----------------------------------------------
+  // 티켓 UserId가 null인 것 인식하여 남는 자리 확인하는 로직
+  function countNullUserIdTickets(tickets) {
+    return tickets.filter((ticket) => ticket.USER_ID === null).length;
   }
 
-  function TimeAndEmptySeats(tickets) {
-    const dateMap = new Map();
-
-    tickets.forEach((ticket) => {
-      const date = new Date(ticket.TICKET_DATE).toISOString().split('T')[0];
-      const time = ticket.TICKET_TIME.substring(0, 5);
-      const status = ticket.IS_USED;
-
-      if (!dateMap.has(date)) {
-        dateMap.set(date, new Map());
-      }
-      const timeMap = dateMap.get(date);
-      if (!timeMap.has(time)) {
-        timeMap.set(time, { emptySeats: 0 });
-      }
-      if (!status) {
-        timeMap.get(time).emptySeats += 1;
-      }
-    });
-
-    const result = Array.from(dateMap.entries()).map(([date, timeMap]) => ({
-      date,
-      times: Array.from(timeMap.entries()).map(([time, { emptySeats }]) => ({
-        time,
-        emptySeats,
-      })),
-    }));
-
-    result.sort((a, b) => {
-      const dateComparison = new Date(a.date) - new Date(b.date);
-      if (dateComparison !== 0) return dateComparison;
-
-      return a.times[0].time.localeCompare(b.times[0].time);
-    });
-
-    return result;
-  }
-
-  const groupedTickets = TimeAndEmptySeats(event.tickets);
-  const hasTicketsForSelectedDate = groupedTickets.some((ticketDate) => ticketDate.date === formatDate(selectedDate));
-
+  const nullUserTicketsCount = countNullUserIdTickets(event.tickets);
+  // -----------------------------------------------
   // 로그인 여부 확인
   const [user, setUser] = useState(null);
   useEffect(() => {
@@ -70,66 +55,71 @@ export default function FixedTicketingSection(props) {
     setUser(storedUser);
   }, []);
 
+  // -----------------------------------------------
+  // 예매하기 눌러서 티켓 구매 페이지 넘어가기 전 로그인 확인 기능
   function checkUser() {
     if (user === null) {
       alert('로그인을 해주세요.');
+      return;
     }
 
-    if (user !== null && choose !== 0) {
+    if (user !== null && event.event.TICKETING_IS_OPEN) {
       router.push({
         pathname: '/reservation',
-        query: { ticket_time: choose, event_pk: id, ticket_limit: event.event.TICKETING_LIMIT },
+        query: { event_pk: id },
       });
     }
   }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemainingTime(getRemainingTime(event.event.TICKETING_END));
+    }, 1000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event.event.TICKETING_END]);
+
+  // -----------------------------------------------
   return (
     <>
-      <div className="fixed right-32 top-40 flex h-[450px] w-[280px] flex-col rounded-2xl bg-[#4579FF] px-7 py-5 font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)]">
-        <div>관람일</div>
-        <div id="dateSection" className="flex justify-center space-x-3 py-5">
-          <div className="cursor-pointer select-none" onClick={() => changeDate(-1)}>
-            &lt;
-          </div>
-          <div className="select-none">{formatDate(selectedDate)}</div>
-          <div className="cursor-pointer select-none" onClick={() => changeDate(1)}>
-            &gt;
-          </div>
+      <div
+        // eslint-disable-next-line max-len
+        className="fixed right-32 top-40 flex h-[450px] w-[280px] flex-col rounded-2xl bg-[#4579FF] px-7 py-5 font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)]"
+      >
+        <div>예매 일</div>
+        <div id="dateSection" className="flex justify-between space-x-3 pb-1 pt-5">
+          <div className="select-none">{formatDate(event.event.TICKETING_START)}</div> <div>~</div>
+          <div className="select-none">{formatDate(event.event.TICKETING_END)}</div>
+        </div>
+        <div id="dateSection" className="flex justify-around space-x-3 pb-4">
+          <div className="select-none">{formatTime(event.event.TICKETING_START)}</div>
+          <div className="select-none">{formatTime(event.event.TICKETING_END)}</div>
         </div>
 
         <div id="section-bar" className="h-[1px] w-full bg-white" />
-        <div className="pt-5">회차</div>
-        {/* Render tickets or hello based on the presence of tickets */}
-        {hasTicketsForSelectedDate ? (
-          groupedTickets.map(
-            (ticketDate, index) => ticketDate.date === formatDate(selectedDate) && (
-              <div key={index} className="pt-1">
-                {ticketDate.times.map((timeSlot, idx) => (
-                  <div key={idx} id={timeSlot.time} className="flex items-center justify-between space-x-3 pt-5">
-                    <div
-                      onClick={() => setChoose(timeSlot.time)}
-                      className={`relative flex h-10 w-28 cursor-pointer select-none items-center justify-center rounded-3xl ${choose === timeSlot.time ? 'bg-[#EF88D8] text-[#FFFFFF]' : 'bg-[#C8CBE8] text-black'} shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)] transition-colors duration-300 hover:bg-[#EF88D8] hover:text-[#FFFFFF]`}
-                    >
-                      <div className="absolute left-[10px] top-0 text-[10px]">{idx + 1}회</div>
-                      <div>{timeSlot.time}</div>
-                    </div>
-                    <div className="text-[10px]">잔여 좌석 : {timeSlot.emptySeats}석</div>
-                  </div>
-                ))}
-              </div>
-            ),
-          )
-        ) : (
-          <div className="p-4">
-            예정된 티케팅 날짜가 <br /> 존재하지 않습니다.
+        <div className="pt-5">정보</div>
+
+        <div className="pt-1">
+          <div className="flex items-center justify-between space-x-3 pt-5">
+            <div className="relative flex h-14 w-full select-none items-center justify-center rounded-3xl bg-[#383838] text-[#FFFFFF] shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)]">
+              <div className="absolute left-[30px] top-1 text-[10px]">잔여좌석</div>
+              <div>{nullUserTicketsCount}석</div>
+            </div>
           </div>
-        )}
+          <div className="flex items-center justify-between space-x-3 pt-5">
+            <div className="relative flex h-14 w-full select-none items-center justify-center rounded-3xl bg-[#FFBE57] text-[#2C2C2C] shadow-[5px_5px_5px_0px_rgba(0,0,0,0.3)]">
+              <div className="absolute left-[30px] top-1 text-[10px] font-extrabold">남은 시간</div>
+              <div>{remainingTime}</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div
         onClick={checkUser}
-        className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] items-center justify-center rounded-xl ${choose === 0 ? 'bg-[#383838]' : 'bg-[#4579FF]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
+        // eslint-disable-next-line max-len
+        className={`fixed right-32 top-[630px] flex h-[40px] w-[280px] cursor-pointer items-center justify-center rounded-xl ${event.event.TICKETING_IS_OPEN ? 'bg-[#4579FF]' : 'bg-[#383838]'} font-extrabold text-[#FFFFFF] shadow-[10px_10px_10px_0px_rgba(0,0,0,0.3)] transition-colors duration-300`}
       >
-        <div>예매하기</div>
+        <div>{event.event.TICKETING_IS_OPEN ? '예매하기' : '종료된 이벤트입니다.'}</div>
       </div>
     </>
   );

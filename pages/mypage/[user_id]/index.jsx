@@ -9,10 +9,10 @@ export default function MyPage(props) {
     return <div>loading...</div>;
   }
   return (
-    <div>
+    <div className="px-28 pt-6">
       <div>
-        <h1 className="ml-5 mt-5 text-xl font-bold">마이페이지</h1>
-        <p className="ml-5 mt-2">
+        <h1 className="ml-44 mt-5 text-xl font-bold">마이페이지</h1>
+        <p className="ml-44 mt-2">
           <span className="">{u.USER_NICKNAME}</span> 님 환영합니다.
         </p>
       </div>
@@ -46,6 +46,13 @@ export default function MyPage(props) {
           <ul>
             <li className="my-2">
               <Link href={`/mypage/${u.USER_ID}/reservation`}>최근 예매내역</Link>
+            </li>
+          </ul>
+        </div>
+        <div className="p-4">
+          <ul>
+            <li className="my-2">
+              <Link href={'/payment'}>포인트 충전</Link>
             </li>
           </ul>
         </div>

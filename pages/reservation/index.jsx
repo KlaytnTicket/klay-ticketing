@@ -5,14 +5,15 @@ import { useState, useEffect } from 'react';
 export default function Home() {
   const [tickets, setTickets] = useState([]); // 층 수에 따른 전체 티켓정보
   const [ticketInfo, setTicketInfo] = useState({}); // 티켓 이벤트 정보 가져오기
-  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [selectedSeats, setSelectedSeats] = useState(null);
   const [userPoint, setUserPoint] = useState(0);
+  const [userWallet, setUserWallet] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
   const [floor, setFloor] = useState(1);
   const [error, setError] = useState(null); // 에러 상태 추가
   const router = useRouter(); // next.js 라우터
 
-  const { ticket_time, event_pk, ticket_limit } = router.query; // 이벤트 pk랑 시간대, 티켓팅 최댓값 받아오는 거 ==> 티켓정보 불러오기
+  const { event_pk } = router.query; // 이벤트 pk랑 티켓팅 최댓값 받아오는 거 ==> 티켓정보 불러오기
   const [user, setUser] = useState(null);
 
   // User 아이디 불러오기
@@ -25,20 +26,29 @@ export default function Home() {
     const fetchTicketData = async () => {
       try {
         const res = await axios.get('/api/tickets/ticketInfo', {
-          params: { floor, event_pk, ticket_time },
+          params: { floor, event_pk },
           headers: {
             'Cache-Control': 'no-cache', // 캐시 무시
           },
         });
 
-        // Array destructuring 사용
-        const { TICKET_DATE, ...restTicketInfo } = res.data.ticketInfo;
-        const date = new Date(TICKET_DATE);
-        const formattedDate = date.toISOString().split('T')[0];
-        const ticketinfo = { TICKET_DATE: formattedDate, ...restTicketInfo };
+        const { ticketInfo: fetchedTicketInfo } = res.data; // API 응답으로부터 티켓 이벤트 정보 가져오기
+        let { tickets: fetchedTickets } = res.data; // 티켓 정보 가져오기
+
+        const formattedStartDate = new Date(fetchedTicketInfo.EVENT_START).toLocaleString();
+        const formattedEndDate = new Date(fetchedTicketInfo.EVENT_END).toLocaleString();
+        const ticketinfo = { ...fetchedTicketInfo, EVENT_START: formattedStartDate, EVENT_END: formattedEndDate };
+
+        // 좌석 데이터를 행과 열 순서로 출력하기
+        fetchedTickets = fetchedTickets.sort((a, b) => {
+          if (a.SEAT_ROW === b.SEAT_ROW) {
+            return a.SEAT_COLUMN - b.SEAT_COLUMN;
+          }
+          return a.SEAT_ROW - b.SEAT_ROW;
+        });
 
         setTicketInfo(ticketinfo);
-        setTickets(res.data.tickets);
+        setTickets(fetchedTickets);
       } catch (errors) {
         setError('데이터를 불러오지 못했습니다');
         setTickets([]);
@@ -56,6 +66,7 @@ export default function Home() {
           },
         });
 
+        setUserWallet(res.data.USER_WALLET);
         setUserPoint(res.data.USER_POINT);
       } catch (errors) {
         setError('데이터를 불러오지 못했습니다'); // 에러 메시지 설정
@@ -64,11 +75,14 @@ export default function Home() {
 
     fetchTicketData();
     fetchUserPoint();
-  }, [floor, ticket_time, event_pk]);
+  }, [floor, event_pk, user]);
 
   useEffect(() => {
-    const total = selectedSeats.reduce((sum, ticket) => sum + ticket.PRICE, 0);
-    setTotalPrice(total);
+    if (selectedSeats) {
+      setTotalPrice(selectedSeats.PRICE);
+    } else {
+      setTotalPrice(0);
+    }
   }, [selectedSeats]);
 
   const handleSeatSelect = (ticket) => {
@@ -77,54 +91,24 @@ export default function Home() {
       return;
     }
 
-    let newSelectedSeats = [...selectedSeats];
-
-    if (selectedSeats.includes(ticket)) {
-      // 이미 고른 자리를 클릭하면 선택 풀림
-      newSelectedSeats = selectedSeats.filter((seat) => seat !== ticket);
+    // 이미 선택된 좌석이 있을 경우 새로운 좌석으로 교체
+    if (selectedSeats && selectedSeats.ID === ticket.ID) {
+      setSelectedSeats(null);
+      setTotalPrice(0);
     } else {
-      const row = ticket.SEAT_ROW;
+      // 새 좌석을 선택할 때 기존 선택 좌석을 교체
+      const newTotalPrice = ticket.PRICE;
 
-      if (selectedSeats.length === 0) {
-        newSelectedSeats = [ticket];
-      } else if (selectedSeats.length === 1) {
-        const [firstSeat] = selectedSeats;
-        const minColumn = Math.min(firstSeat.SEAT_COLUMN, ticket.SEAT_COLUMN);
-        const maxColumn = Math.max(firstSeat.SEAT_COLUMN, ticket.SEAT_COLUMN);
-
-        // 첫 번째 좌석과 새로 선택된 좌석 사이의 모든 좌석을 가져옴
-        const middleSeats = tickets.filter((seat) => seat.SEAT_ROW === row && seat.SEAT_COLUMN > minColumn && seat.SEAT_COLUMN < maxColumn && !seat.IS_USED);
-
-        // 중간 좌석들을 선택한 좌석 리스트에 추가
-        newSelectedSeats = [firstSeat, ...middleSeats, ticket];
-      } else if (selectedSeats.length === 2) {
-        const [firstSeat, secondSeat] = selectedSeats;
-        if (Math.abs(firstSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1 || Math.abs(secondSeat.SEAT_COLUMN - ticket.SEAT_COLUMN) === 1) {
-          // 고른 자리가 기존 자리랑 붙어 있으면
-          newSelectedSeats = [...selectedSeats, ticket];
-        } else {
-          newSelectedSeats = [ticket];
-        }
+      if (newTotalPrice > userPoint) {
+        alert('포인트가 부족합니다.');
       } else {
-        newSelectedSeats = [ticket];
+        setSelectedSeats(ticket);
+        setTotalPrice(newTotalPrice);
       }
-    }
-
-    // 선택된 좌석 수가 ticket_limit을 초과하면, 마지막에 선택한 좌석만 남기고 초기화
-    if (newSelectedSeats.length > ticket_limit) {
-      newSelectedSeats = [ticket];
-    }
-
-    // 새로 고른 좌석들 총 포인트 계산
-    const newTotalPrice = newSelectedSeats.reduce((sum, seat) => sum + seat.PRICE, 0);
-
-    if (newTotalPrice > userPoint) {
-      alert('포인트가 부족합니다.');
-    } else {
-      setSelectedSeats(newSelectedSeats);
     }
   };
 
+  // 층 고르기
   const handleFloorChange = (direction) => {
     if (direction === 'prev' && floor > 1) {
       setFloor(floor - 1);
@@ -133,6 +117,7 @@ export default function Home() {
     }
   };
 
+  // 좌석 별 색깔
   const getSeatColor = (grade) => {
     switch (grade) {
     case 'S':
@@ -148,79 +133,76 @@ export default function Home() {
     }
   };
 
-  const remainingSeats = tickets.filter((ticket) => ticket.IS_USED === false).length;
+  const remainingSeats = tickets.filter((ticket) => !ticket.IS_USED).length;
 
-  const remainingSSeats = tickets.filter((ticket) => ticket.IS_USED !== 0 && ticket.SEAT_GRADE === 'S').length;
-  const remainingASeats = tickets.filter((ticket) => ticket.IS_USED !== 0 && ticket.SEAT_GRADE === 'A').length;
-  const remainingBSeats = tickets.filter((ticket) => ticket.IS_USED !== 0 && ticket.SEAT_GRADE === 'B').length;
-  const remainingCSeats = tickets.filter((ticket) => ticket.IS_USED !== 0 && ticket.SEAT_GRADE === 'C').length;
+  const remainingSSeats = tickets.filter((ticket) => !ticket.IS_USED && ticket.SEAT_GRADE === 'S').length;
+  const remainingASeats = tickets.filter((ticket) => !ticket.IS_USED && ticket.SEAT_GRADE === 'A').length;
+  const remainingBSeats = tickets.filter((ticket) => !ticket.IS_USED && ticket.SEAT_GRADE === 'B').length;
+  const remainingCSeats = tickets.filter((ticket) => !ticket.IS_USED && ticket.SEAT_GRADE === 'C').length;
 
+  const cA = ticketInfo?.CONTRACT_ADDRESS;
   const handleCompleteSelection = async () => {
     if (totalPrice === 0) {
       alert('좌석 선택해라.');
     } else {
       try {
         const { userID } = user;
-        const ticketIDs = selectedSeats.map((seat) => seat.ID);
+        const ticketID = selectedSeats.ID;
 
-        const requestData = { userID, totalPrice, ticketIDs };
-
+        // 포인트 처리 관련 API
+        const requestData = { userID, totalPrice, ticketID };
         const res = await axios.post('/api/tickets/ticketbuy', requestData);
 
         if (res.status !== 200) {
           throw new Error('결제 처리 오류');
         }
 
+        // Minting 및 토큰 ID 배당
+        const MintingData = { cA, userWallet, ticketID };
+        const response = await axios.post('/api/tickets/minting', MintingData);
+
+        if (response.status !== 200) {
+          throw new Error('민팅 오류');
+        }
+
         alert('결제 성공');
-        setSelectedSeats([]); // 선택 좌석 초기화
+        setSelectedSeats(null); // 선택 좌석 초기화
         router.reload();
-        // router.push('/payment');
       } catch (errors) {
-        // console.error(error);
         alert('결제 처리 오류');
       }
     }
   };
-  // console.log(tickets);
-  // console.log(selectedSeats);
-  // if(selectedSeats !== null){
-  //   console.log(selectedSeats[0]);
-  // }
 
   const handleGoBack = () => {
-    // 이전 페이지로 이동
     router.push('/previous');
   };
 
   return (
     <div className="container mx-auto p-4">
-      {/* 헤더 */}
+      {/* 헤더 부분 */}
       <div className="mb-4 bg-blue-500 p-4 text-white">
         <h1 className="text-left text-2xl font-bold">좌석 선택</h1>
       </div>
 
       {/* 티켓 정보 섹션 */}
       <div className="mb-4 flex justify-between bg-gray-200 p-4">
-        <div className="text-3xl font-extrabold">{ticketInfo.NFT_NAME}</div>
+        <div className="text-3xl font-extrabold">{ticketInfo.NAME}</div>
         <div className="text-right text-sm">
-          <div>{ticketInfo.TICKET_DATE}</div>
-          <div>{ticketInfo.TICKET_TIME}</div>
-          <div>{ticketInfo.PLACE}</div>
+          <div>{ticketInfo.EVENT_START}</div>
+          <div>{ticketInfo.EVENT_END}</div>
+          <div>{ticketInfo.SITE}</div>
         </div>
       </div>
 
       {/* 좌우 화살표 버튼 */}
       <div className="mb-4 flex items-center justify-between">
         <button onClick={() => handleFloorChange('prev')} disabled={floor === 1}>
-          <div className="cursor-pointer select-none" onClick={() => setFloor(floor - 1)}>
-            &lt;
-          </div>
+          <div className="cursor-pointer select-none">&lt;</div>
         </button>
         <span className="text-xl font-bold">현재 층: {floor}층</span>
         <button onClick={() => handleFloorChange('next')} disabled={floor === 2}>
-          <div className="cursor-pointer select-none" onClick={() => setFloor(floor - 1)}>
-            &gt;
-          </div>
+          <div className="cursor-pointer select-none">&gt;</div>
         </button>
       </div>
 
@@ -229,9 +211,8 @@ export default function Home() {
         {tickets.map((ticket) => (
           <div
             key={ticket.ID}
-            className={`col-span-1 cursor-pointer border p-2 ${selectedSeats.includes(ticket) ? 'border-4 border-black' : ''} ${
-              ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)
-            }`}
+            // eslint-disable-next-line max-len
+            className={`col-span-1 cursor-pointer border p-2 ${selectedSeats && selectedSeats.ID === ticket.ID ? 'border-4 border-black' : ''} ${ticket.IS_USED ? 'bg-gray-400' : getSeatColor(ticket.SEAT_GRADE)}`}
             onClick={() => handleSeatSelect(ticket)}
           >
             {ticket.SEAT_ROW}-{ticket.SEAT_COLUMN}
@@ -250,42 +231,44 @@ export default function Home() {
         <div className="w-1/2">
           <h2 className="mb-2 text-xl font-bold">고른 좌석</h2>
           <div className="border-b-2 border-t-2 border-black">
-            {selectedSeats.map((ticket, index) => (
-              <div key={ticket.ID} className={`border-b p-2 ${index !== selectedSeats.length - 1 ? 'mb-4' : ''}`}>
+            {selectedSeats && (
+              <div className="mb-4 border-b p-2">
                 <div className="flex">
                   <div className="flex w-1/3 items-center justify-center bg-gray-200 p-2">
                     <div className="font-bold">좌석층수</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
-                    <div>{ticket.SEAT_FLOOR}층</div>
+                    <div>{selectedSeats.SEAT_FLOOR}층</div>
                   </div>
                 </div>
-                <div className="mt-2 border-t border-gray-300" /> {/* 구분선 추가 및 마진 적용 */}
+                {/* 구분선 추가 및 마진 적용 */}
+                <div className="mt-2 border-t border-gray-300" />
                 <div className="mt-2 flex">
                   <div className="flex w-1/3 items-center justify-center bg-gray-200 p-2">
                     <div className="font-bold">좌석등급</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
-                    <div>{ticket.SEAT_GRADE}</div>
+                    <div>{selectedSeats.SEAT_GRADE}</div>
                   </div>
                 </div>
-                <div className="mt-2 border-t border-gray-300" /> {/* 구분선 추가 및 마진 적용 */}
+                {/* 구분선 추가 및 마진 적용 */}
+                <div className="mt-2 border-t border-gray-300" />
                 <div className="mt-2 flex">
                   <div className="flex w-1/3 items-center justify-center bg-gray-200 p-2">
                     <div className="font-bold">좌석위치</div>
                   </div>
                   <div className="flex w-2/3 items-center p-2">
                     <div>
-                      {ticket.SEAT_ROW}-{ticket.SEAT_COLUMN}
+                      {selectedSeats.SEAT_ROW}-{selectedSeats.SEAT_COLUMN}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* 버튼 2개 */}
+        {/* 결제 버튼 및 돌아가기 버튼 */}
         <div className="flex w-1/2 flex-col items-center justify-center">
           <button onClick={handleCompleteSelection} className="mt-10 w-96 rounded bg-orange-500 p-4 text-xl font-bold text-white">
             <span className="animate-flash">좌석 선택 완료 및 결제</span>

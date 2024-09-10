@@ -35,15 +35,8 @@ export default function Login() {
         <title>로그인</title>
       </Head>
 
-      {/* 로고 */}
-      <header>
-        <div className="container mx-auto mt-32 flex justify-center">
-          <Link href="/mainpage">로고</Link>
-        </div>
-      </header>
-
       {/* 로그인 폼 */}
-      <main className="mt-8 flex min-h-screen justify-center">
+      <main className="mt-36 flex min-h-screen justify-center">
         <div className="items-center">
           <div className="rounded-lg p-8 px-36 shadow-md">
             <form onSubmit={handleSubmit}>
